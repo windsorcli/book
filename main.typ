@@ -8,34 +8,57 @@
   date: datetime.today().display("[month repr:long] [day], [year]"),
 )
 
-// Title page (unnumbered)
+// Cover page
 #set page(numbering: none)
 #page[
-  #v(1fr)
-  #align(center)[
-    #text(28pt, weight: "bold", fill: rgb("#1a1a1a"))[
-      Unified Cloud Native Development\
-      with Windsor
-    ]
+  #v(1.5fr)
 
-    #v(2em)
-
-    #text(16pt, weight: "regular", fill: rgb("#4a4a4a"))[
-      A Comprehensive Guide to Infrastructure Orchestration
-    ]
-
-    #v(4em)
-
-    #text(13pt, weight: "regular", fill: rgb("#2a2a2a"))[
-      Ryan VanGundy
-    ]
-
-    #v(2em)
-
-    #text(11pt, weight: "regular", fill: rgb("#666666"))[
-      Published #datetime.today().display("[month repr:long] [day], [year]")
-    ]
+      // Single column layout with floating image
+  #text(48pt, weight: "bold", fill: rgb("#2d3748"))[
+    Unified Cloud Native\
+    Development
   ]
+
+  #v(1.5em)
+
+  #text(38pt, weight: "bold", fill: rgb("#8b4513"))[
+    with Windsor
+  ]
+
+      // Floating image positioned independently (behind text)
+  #place(
+    right + bottom,
+    dx: -1.5em,
+    dy: -8em,
+    [#image("chapters/cover_image.png", width: 180pt)]
+  )
+
+    #v(2.5em)
+
+  #text(18pt, weight: "regular", fill: rgb("#4a5568"), style: "italic")[
+    A Comprehensive Guide to\
+    Infrastructure Orchestration
+  ]
+
+  #v(2.5fr)
+
+  // Author at bottom left for separation
+  #grid(
+    columns: (2fr, 1fr),
+    [
+      #text(17pt, weight: "semibold", fill: rgb("#2d3748"))[
+        Ryan VanGundy
+      ]
+
+      #v(0.7em)
+
+      #text(11pt, weight: "regular", fill: rgb("#718096"))[
+        Published #datetime.today().display("[month repr:long] [day], [year]")
+      ]
+    ],
+    []
+  )
+
   #v(1fr)
 ]
 
