@@ -1,0 +1,120 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "github>aquaproj/aqua-renovate-config#2.8.2",
+    ":dependencyDashboard"
+  ],
+  "packageRules": [
+    {
+      "description": "Pin SOPS to v3.9.0",
+      "matchPackageNames": [
+        "getsops/sops"
+      ],
+      "allowedVersions": "3.9.0"
+    },
+    {
+      "description": "Pin GitHub Actions to specific commit SHAs",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "versioning": "github-tags",
+      "pinDigests": true,
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "matchPackageNames": [
+        "/.*/"
+      ]
+    },
+    {
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch"
+      ],
+      "enabled": true,
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "labels": [
+        "dependencies"
+      ]
+    },
+    {
+      "description": "Update Go modules",
+      "matchManagers": [
+        "gomod"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "labels": [
+        "go",
+        "dependencies"
+      ]
+    },
+    {
+      "description": "Enable Go version updates",
+      "matchManagers": ["gomod"],
+      "matchDepNames": ["go"],
+      "matchDepTypes": ["golang"],
+      "rangeStrategy": "replace"
+    },
+    {
+      "description": "Update Taskfile dependencies",
+      "matchFileNames": [
+        "Taskfile.yaml"
+      ],
+      "enabled": true,
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "labels": [
+        "dependencies"
+      ]
+    }
+  ],
+  "platformAutomerge": true,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^pkg/constants/constants.go$/"
+      ],
+      "matchStrings": [
+        "// renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\n\\s*const\\s+\\S+\\s*=\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "{{datasource}}",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^Taskfile.yaml$/"
+      ],
+      "matchStrings": [
+        "go install (?<depName>\\S+)@(?<currentValue>\\S+)"
+      ],
+      "datasourceTemplate": "go",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^Taskfile.yaml$/"
+      ],
+      "matchStrings": [
+        "choco install (?<depName>\\S+) --version=(?<currentValue>\\S+)"
+      ],
+      "datasourceTemplate": "chocolatey",
+      "versioningTemplate": "semver"
+    }
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "postUpdateOptions": [
+    "gomodTidy"
+  ]
+}
