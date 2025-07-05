@@ -25,7 +25,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      - name: Cache Task binary
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        id: cache-task
+        with:
+          path: /usr/local/bin/task
+          key: ${{ runner.os }}-task-binary
+
       - name: Install Task
+        if: steps.cache-task.outputs.cache-hit != 'true'
         run: |
           sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
@@ -33,52 +41,54 @@ jobs:
         uses: typst-community/setup-typst@13c527d2e8ac7863a24510c4043ad28fd47a5606 # v4.1.0
         with:
           typst-version: 'latest'
+          cache-dependency-path: '' # Enable caching
 
       - name: Install Rust for typlite
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Cache Cargo registry
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-typlite
+          restore-keys: |
+            ${{ runner.os }}-cargo-typlite
+
       - name: Install typlite
         run: |
-          cargo install --git https://github.com/Myriad-Dreamin/tinymist.git typlite
+          # Check if typlite is already cached
+          if ! command -v typlite &> /dev/null; then
+            cargo install --git https://github.com/Myriad-Dreamin/tinymist.git typlite
+          else
+            echo "typlite already installed from cache"
+          fi
+
+      - name: Cache APT packages
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        id: cache-apt
+        with:
+          path: /var/cache/apt
+          key: ${{ runner.os }}-apt-pandoc
 
       - name: Install pandoc
         run: |
-          sudo apt-get update
-          sudo apt-get install -y pandoc
+          if ! command -v pandoc &> /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y pandoc
+          else
+            echo "pandoc already installed"
+          fi
 
       - name: Build all formats
         run: |
           task all
 
-      - name: Upload PDF
+      - name: Upload book artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: windsor-book${{ startsWith(github.ref, 'refs/tags/') && format('-{0}', github.ref_name) || '' }}.pdf
-          path: dist/unified-cloud-native-development-with-windsor.pdf
+          name: windsor-book${{ startsWith(github.ref, 'refs/tags/') && format('-{0}', github.ref_name) || '' }}
+          path: dist/
           retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 0 || 30 }}
-          compression-level: 0
-
-      - name: Upload EPUB
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: windsor-book${{ startsWith(github.ref, 'refs/tags/') && format('-{0}', github.ref_name) || '' }}.epub
-          path: dist/unified-cloud-native-development-with-windsor.epub
-          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 0 || 30 }}
-          compression-level: 0
-
-      - name: Upload HTML with CSS
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: windsor-book${{ startsWith(github.ref, 'refs/tags/') && format('-{0}', github.ref_name) || '' }}-html
-          path: |
-            dist/unified-cloud-native-development-with-windsor.html
-            dist/book.css
-          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 0 || 30 }}
-
-      - name: Upload Markdown
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: windsor-book${{ startsWith(github.ref, 'refs/tags/') && format('-{0}', github.ref_name) || '' }}.md
-          path: dist/unified-cloud-native-development-with-windsor.md
-          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 0 || 30 }}
-          compression-level: 0

@@ -39,6 +39,12 @@ jobs:
           git tag -a "$FINAL_VERSION" -m "Release $FINAL_VERSION"
           git push origin "$FINAL_VERSION"
 
+      - name: Download artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: windsor-book-${{ steps.calver.outputs.version }}
+          path: dist/
+
       - name: Generate changelog
         id: changelog
         run: |
@@ -79,11 +85,9 @@ jobs:
 
             ## 📚 Available Formats
 
-            Book artifacts are available in the [GitHub Actions artifacts](https://github.com/${{ github.repository }}/actions) from the build that triggered this release.
-
             - **PDF**: Professional print-ready format with full typography
             - **EPUB**: E-reader compatible format
-            - **HTML**: Standalone web page with navigation
+            - **HTML**: Standalone web page with navigation (includes CSS)
             - **Markdown**: Raw documentation format
 
             ## 📝 Changelog
@@ -93,5 +97,11 @@ jobs:
             ---
 
             *This release covers Windsor CLI development practices and infrastructure orchestration.*
+          files: |
+            dist/unified-cloud-native-development-with-windsor.pdf
+            dist/unified-cloud-native-development-with-windsor.epub
+            dist/unified-cloud-native-development-with-windsor.html
+            dist/unified-cloud-native-development-with-windsor.md
+            dist/book.css
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
