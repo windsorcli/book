@@ -45,7 +45,7 @@ jobs:
         with:
           name: windsor-book.pdf
           path: dist/unified-cloud-native-development-with-windsor.pdf
-          retention-days: 30
+          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 0 || 30 }}
           compression-level: 0
 
       - name: Upload EPUB
@@ -53,7 +53,7 @@ jobs:
         with:
           name: windsor-book.epub
           path: dist/unified-cloud-native-development-with-windsor.epub
-          retention-days: 30
+          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 0 || 30 }}
           compression-level: 0
 
       - name: Upload HTML with CSS
@@ -63,12 +63,12 @@ jobs:
           path: |
             dist/unified-cloud-native-development-with-windsor.html
             dist/book.css
-          retention-days: 30
+          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 0 || 30 }}
 
       - name: Upload Markdown
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: windsor-book.md
           path: dist/unified-cloud-native-development-with-windsor.md
-          retention-days: 30
+          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 0 || 30 }}
           compression-level: 0
