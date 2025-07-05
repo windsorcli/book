@@ -43,6 +43,8 @@ This book takes you on a journey from Windsor's fundamental concepts to advanced
 - Secrets management strategies that maintain security without sacrificing developer experience
 - Advanced customization techniques for enterprise environments
 
+#pagebreak()
+
 == How to Use This Book
 
 The book is structured to support both linear reading and reference use. Early chapters establish fundamental concepts and provide hands-on experience with Windsor's core features. Later chapters dive deeper into specific integrations and advanced patterns.
@@ -51,7 +53,7 @@ Each chapter includes practical examples you can run on your own system. The acc
 
 == Publication and Distribution
 
-This book is published digitally and distributed through the Windsor CLI project repository at https://github.com/windsorcli/book/releases. Multiple formats are available to accommodate different reading preferences and devices. The book follows an open development model—edits, corrections, and contributions from the community are welcome and encouraged.
+This book is published digitally and distributed through the Windsor CLI project repository at #link("https://github.com/windsorcli/book/releases"). Multiple formats are available to accommodate different reading preferences and devices. The book follows an open development model—edits, corrections, and contributions from the community are welcome and encouraged.
 
 New editions are released in coordination with Windsor CLI development cycles, ensuring that the documentation remains current with the latest features and best practices. Each release includes comprehensive release notes detailing changes, additions, and improvements. This approach ensures that readers always have access to up-to-date information that reflects the current state of the Windsor ecosystem.
 
