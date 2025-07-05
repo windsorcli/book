@@ -5,6 +5,7 @@
   title: "Unified Cloud Native Development with Windsor",
   subtitle: "A Comprehensive Guide to Infrastructure Orchestration",
   author: "Ryan VanGundy",
+  date: datetime.today().display("[month repr:long] [day], [year]"),
 )
 
 // Title page (unnumbered)
@@ -27,6 +28,12 @@
 
     #text(13pt, weight: "regular", fill: rgb("#2a2a2a"))[
       Ryan VanGundy
+    ]
+
+    #v(2em)
+
+    #text(11pt, weight: "regular", fill: rgb("#666666"))[
+      Published #datetime.today().display("[month repr:long] [day], [year]")
     ]
   ]
   #v(1fr)

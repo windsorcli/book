@@ -21,6 +21,7 @@ pdf_pages/
 # Cache files
 .quarto/
 *_cache/
+.task/
 
 # OS files
 .DS_Store
