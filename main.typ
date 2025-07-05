@@ -99,6 +99,13 @@
 #v(1em)
 
 // Chapter entries
+#toc-entry("Chapter 1: Introduction to Windsor CLI", "1")
+#toc-entry("The Problem Windsor Solves", "1", level: 1)
+#toc-entry("Windsor's Solution: Unified Cloud-Native Development", "2", level: 1)
+#toc-entry("Core Concepts and Architecture", "3", level: 1)
+#toc-entry("Operational Workflow and Benefits", "4", level: 1)
+
+#pagebreak()
 
 // Front matter (Preface) - Roman numerals continue, NO NUMBERING
 #set heading(numbering: none)
@@ -112,6 +119,7 @@
 #set heading(numbering: "1.")
 
 // Chapters
+#include "chapters/chapter01/chapter01.typ"
 
 // Add more chapters as needed
 // #include "chapters/chapter02/chapter02.typ"
