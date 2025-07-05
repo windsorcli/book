@@ -1,9 +1,6 @@
 name: Build and Upload Book Assets
 
 on:
-  push:
-    branches:
-      - '**'  # Triggers on all branches
   pull_request:
     branches:
       - main  # Only run on PRs to main
