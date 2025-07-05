@@ -94,6 +94,18 @@ jobs:
         run: |
           task all
 
+      - name: Rename files for release
+        if: startsWith(github.ref, 'refs/tags/') || inputs.tag_name
+        run: |
+          TAG_NAME="${{ inputs.tag_name || github.ref_name }}"
+          cd dist/
+
+          # Rename files to include version
+          mv unified-cloud-native-development-with-windsor.pdf windsor-book-${TAG_NAME}.pdf
+          mv unified-cloud-native-development-with-windsor.epub windsor-book-${TAG_NAME}.epub
+          mv unified-cloud-native-development-with-windsor.html windsor-book-${TAG_NAME}.html
+          mv unified-cloud-native-development-with-windsor.md windsor-book-${TAG_NAME}.md
+
       - name: Upload book artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -156,10 +168,10 @@ jobs:
 
             *This release covers Windsor CLI development practices and infrastructure orchestration.*
           files: |
-            dist/unified-cloud-native-development-with-windsor.pdf
-            dist/unified-cloud-native-development-with-windsor.epub
-            dist/unified-cloud-native-development-with-windsor.html
-            dist/unified-cloud-native-development-with-windsor.md
+            dist/windsor-book-${{ inputs.tag_name || github.ref_name }}.pdf
+            dist/windsor-book-${{ inputs.tag_name || github.ref_name }}.epub
+            dist/windsor-book-${{ inputs.tag_name || github.ref_name }}.html
+            dist/windsor-book-${{ inputs.tag_name || github.ref_name }}.md
             dist/book.css
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

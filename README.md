@@ -1,65 +1,44 @@
-# Windsor CLI Book - Multi-Format Publishing System
+# Windsor CLI Book
 
-A comprehensive guide to **Unified Cloud Native Development with Windsor**, featuring a modern publishing pipeline that generates professional PDF, EPUB, HTML, and Markdown formats from a single Typst source.
+A comprehensive guide to **Unified Cloud Native Development with Windsor**, published in multiple formats from a single source.
 
-## 📚 About This Book
+## About This Book
 
 This book provides a complete guide to using Windsor CLI for unified cloud-native development, covering infrastructure orchestration, blueprint-driven development, and multi-cloud deployment strategies.
 
-## 🏗️ Publishing Architecture
-
-This project uses a **Typst-first** approach with multi-format output:
-
-- **Typst** → Professional PDF with beautiful typography
-- **Typlite** → Converts Typst to Markdown
-- **Pandoc** → Generates EPUB and HTML from Markdown
-
-### Single Source of Truth
-- **Primary source**: Typst files in `chapters/`
-- **PDF generation**: Direct from Typst (preserves all formatting)
-- **Digital formats**: Via Typlite → Pandoc conversion chain
-
-## 🚀 Quick Start
+## Getting Started
 
 ### Prerequisites
 
-Install all required tools:
+Install required tools:
 ```bash
 task install-all
-```
-
-Or install individually:
-```bash
-task install-typst    # Install Typst
-task install-typlite  # Install typlite
-task install-pandoc   # Install pandoc
 ```
 
 ### Build All Formats
 
 ```bash
-task all              # Build PDF, EPUB, HTML, and Markdown
+task all
 ```
 
-All output files are generated in the `dist/` folder:
+Output files are generated in `dist/`:
 - `unified-cloud-native-development-with-windsor.pdf`
 - `unified-cloud-native-development-with-windsor.epub`
 - `unified-cloud-native-development-with-windsor.html`
 - `unified-cloud-native-development-with-windsor.md`
 
-## 📖 Available Tasks
+## Available Tasks
 
 ### Build Tasks
-- `task pdf` - Build PDF (with beautiful Typst typography)
-- `task markdown` - Convert to Markdown using typlite
-- `task epub` - Generate EPUB from Markdown
-- `task html` - Generate HTML from Markdown
-- `task all` - Build all formats (default)
+- `task pdf` - Build PDF
+- `task markdown` - Convert to Markdown
+- `task epub` - Generate EPUB
+- `task html` - Generate HTML
+- `task all` - Build all formats
 
 ### Development Tasks
 - `task watch` - Watch for changes and rebuild PDF
-- `task convert` - Build PDF and convert to images for inspection
-- `task clean` - Remove all generated files
+- `task clean` - Remove generated files
 
 ### Installation Tasks
 - `task install-all` - Install all required tools
@@ -67,7 +46,7 @@ All output files are generated in the `dist/` folder:
 - `task install-typlite` - Install typlite
 - `task install-pandoc` - Install pandoc
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 book/
@@ -76,93 +55,40 @@ book/
 │   ├── chapter01/chapter01.typ
 │   └── ...
 ├── dist/                        # Generated output files
-│   ├── unified-cloud-native-development-with-windsor.pdf
-│   ├── unified-cloud-native-development-with-windsor.epub
-│   ├── unified-cloud-native-development-with-windsor.html
-│   └── unified-cloud-native-development-with-windsor.md
-├── main.typ                     # Main Typst file (for PDF)
-├── main-lite.typ               # Simplified version (for typlite)
-├── template.typ                # Professional book template
-├── pandoc-metadata.yaml        # Metadata for EPUB/HTML
-├── book.css                    # Styling for HTML output
+├── main.typ                     # Main Typst file
+├── main-lite.typ               # Simplified version for conversion
+├── template.typ                # Book template
+├── pandoc-metadata.yaml        # Metadata for digital formats
+├── book.css                    # HTML styling
 └── Taskfile.yml                # Build automation
 ```
 
-## 🎨 Typography & Design
+## Customization
 
-### PDF Features (via Typst)
-- **Professional typography** with Libertinus Serif font
-- **Traditional book layout** with proper page numbering (Roman → Arabic)
-- **Custom headers/footers** with book title and chapter names
-- **Optimized spacing** for headers, paragraphs, and code blocks
-- **High-quality typesetting** with TeX-level line breaking
+### Typography
+Edit `template.typ` to customize fonts, layout, and styling.
 
-### Digital Format Features
-- **EPUB** - E-reader compatible with proper metadata
-- **HTML** - Standalone web page with responsive design
-- **Markdown** - Clean, portable format for documentation
+### Metadata
+Edit `pandoc-metadata.yaml` to change book information and publication details.
 
-## 🔧 Customization
+### HTML Styling
+Edit `book.css` to customize web appearance.
 
-### Modifying Typography
-Edit `template.typ` to customize:
-- Fonts and sizing
-- Page layout and margins
-- Header and footer styles
-- Paragraph and heading spacing
+## Automated Publishing
 
-### Updating Metadata
-Edit `pandoc-metadata.yaml` to change:
-- Book title and author
-- Publication information
-- EPUB metadata
-- HTML styling options
+GitHub Actions automatically builds and publishes releases when tags are created:
 
-### Styling HTML Output
-Edit `book.css` to customize:
-- Web typography
-- Color scheme
-- Layout and spacing
-- Print styles
+1. Manual dispatch creates CalVer tag
+2. Tag triggers build of all formats
+3. Artifacts uploaded to GitHub release
 
-## 🚀 Automated Publishing
-
-### GitHub Actions
-The repository includes automated publishing via GitHub Actions:
-
-1. **Triggered by**: Version tags (e.g., `v1.0.0`) or manual dispatch
-2. **Builds**: All formats (PDF, EPUB, HTML, Markdown)
-3. **Uploads**: Assets to GitHub releases via release-drafter
-
-### Local Development
-```bash
-task watch    # Auto-rebuild PDF on changes
-task all      # Build all formats
-task clean    # Clean generated files
-```
-
-## 🛠️ Technical Details
-
-### Tools Used
-- **[Typst](https://typst.app/)** - Modern typesetting system
-- **[Typlite](https://github.com/Myriad-Dreamin/tinymist)** - Typst to Markdown converter
-- **[Pandoc](https://pandoc.org/)** - Universal document converter
-- **[Task](https://taskfile.dev/)** - Build automation
-
-### Why This Architecture?
-1. **Best typography** - Typst provides superior PDF output
-2. **Single source** - All content in Typst files
-3. **Broad compatibility** - EPUB/HTML for digital distribution
-4. **Fast builds** - Typst compiles 10x faster than LaTeX
-5. **Modern toolchain** - All tools are actively maintained
-
-## 📄 License
+## License
 
 © 2025 Ryan VanGundy. All rights reserved.
 
-## 🤝 Contributing
+## Contributing
 
-This book is about Windsor CLI. For contributions to the tool itself, visit the [Windsor CLI repository](https://github.com/windsorcli/windsor).
+This book is about Windsor CLI. For contributions to the tool itself, visit the [Windsor CLI repository](https://github.com/windsorcli/cli).
 
 For book improvements, please open an issue or pull request.
 
