@@ -1,0 +1,30 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard"
+  ],
+  "enabledManagers": [
+    "github-actions"
+  ],
+  "packageRules": [
+    {
+      "description": "Pin GitHub Actions to specific commit SHAs",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "versioning": "github-tags",
+      "pinDigests": true,
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "matchPackageNames": [
+        "/.*/"
+      ]
+    }
+  ],
+  "platformAutomerge": true,
+  "labels": [
+    "dependencies"
+  ]
+}

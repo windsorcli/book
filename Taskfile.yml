@@ -1,0 +1,245 @@
+# Windsor CLI Book - Typst Build System
+# Author: Ryan VanGundy
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  OUTPUT_DIR: pdf_pages
+  DIST_DIR: dist
+  BOOK_NAME: unified-cloud-native-development-with-windsor
+
+tasks:
+  default:
+    desc: Build all formats (default task)
+    cmds:
+      - task: all
+
+  check-typst:
+    desc: Check if Typst is installed
+    silent: true
+    cmds:
+      - |
+        if ! command -v typst >/dev/null 2>&1; then
+          echo "Typst not found. Run 'task install-typst' to install it."
+          exit 1
+        fi
+        echo "Typst is installed"
+
+  check-typlite:
+    desc: Check if typlite is installed
+    silent: true
+    cmds:
+      - |
+        if ! command -v typlite >/dev/null 2>&1; then
+          echo "Typlite not found. Run 'task install-typlite' to install it."
+          exit 1
+        fi
+        echo "Typlite is installed"
+
+  check-pandoc:
+    desc: Check if pandoc is installed
+    silent: true
+    cmds:
+      - |
+        if ! command -v pandoc >/dev/null 2>&1; then
+          echo "Pandoc not found. Run 'task install-pandoc' to install it."
+          exit 1
+        fi
+        echo "Pandoc is installed"
+
+  install-typst:
+    desc: Install Typst via cargo or brew
+    cmds:
+      - |
+        echo "Installing Typst..."
+        if command -v cargo >/dev/null 2>&1; then
+          cargo install --locked typst-cli
+        elif command -v brew >/dev/null 2>&1; then
+          brew install typst
+        else
+          echo "Neither cargo nor brew found. Please install Rust or Homebrew first."
+          echo "   Rust: https://rustup.rs/"
+          echo "   Homebrew: https://brew.sh/"
+          exit 1
+        fi
+        echo "Typst installed successfully"
+
+  install-typlite:
+    desc: Install typlite via cargo
+    cmds:
+      - |
+        echo "Installing typlite..."
+        if command -v cargo >/dev/null 2>&1; then
+          cargo install --git https://github.com/Myriad-Dreamin/tinymist.git typlite
+        else
+          echo "Cargo not found. Please install Rust first."
+          echo "   Rust: https://rustup.rs/"
+          exit 1
+        fi
+        echo "Typlite installed successfully"
+
+  install-pandoc:
+    desc: Install pandoc via brew or system package manager
+    cmds:
+      - |
+        echo "Installing pandoc..."
+        if command -v brew >/dev/null 2>&1; then
+          brew install pandoc
+        elif command -v apt >/dev/null 2>&1; then
+          sudo apt update && sudo apt install pandoc
+        elif command -v yum >/dev/null 2>&1; then
+          sudo yum install pandoc
+        else
+          echo "Please install pandoc manually from https://pandoc.org/installing.html"
+          exit 1
+        fi
+        echo "Pandoc installed successfully"
+
+  install-all:
+    desc: Install all required tools
+    deps: [install-typst, install-typlite, install-pandoc]
+    cmds:
+      - echo "All tools installed successfully!"
+
+  pdf:
+    desc: Build the PDF
+    deps: [check-typst]
+    sources:
+      - main.typ
+      - template.typ
+      - chapters/preface/preface.typ
+      - chapters/chapter01/chapter01.typ
+    generates:
+      - "{{.DIST_DIR}}/{{.BOOK_NAME}}.pdf"
+    cmds:
+      - echo "Building Windsor CLI book PDF..."
+      - mkdir -p {{.DIST_DIR}}
+      - typst compile main.typ {{.DIST_DIR}}/{{.BOOK_NAME}}.pdf
+      - echo "PDF generated successfully at {{.DIST_DIR}}/{{.BOOK_NAME}}.pdf"
+
+  markdown:
+    desc: Convert Typst to Markdown using typlite
+    deps: [check-typlite]
+    sources:
+      - main-lite.typ
+      - chapters/preface/preface.typ
+      - chapters/chapter01/chapter01.typ
+    generates:
+      - "{{.DIST_DIR}}/{{.BOOK_NAME}}.md"
+    cmds:
+      - echo "Converting Typst to Markdown..."
+      - mkdir -p {{.DIST_DIR}}
+      - typlite main-lite.typ {{.DIST_DIR}}/{{.BOOK_NAME}}.md
+      - echo "Markdown generated successfully at {{.DIST_DIR}}/{{.BOOK_NAME}}.md"
+
+  epub:
+    desc: Build EPUB from Markdown
+    deps: [check-pandoc, markdown]
+    generates:
+      - "{{.DIST_DIR}}/{{.BOOK_NAME}}.epub"
+    cmds:
+      - echo "Building EPUB..."
+      - mkdir -p {{.DIST_DIR}}
+      - pandoc {{.DIST_DIR}}/{{.BOOK_NAME}}.md --metadata-file=pandoc-metadata.yaml -o {{.DIST_DIR}}/{{.BOOK_NAME}}.epub
+      - echo "EPUB generated successfully at {{.DIST_DIR}}/{{.BOOK_NAME}}.epub"
+
+  html:
+    desc: Build HTML from Markdown
+    deps: [check-pandoc, markdown]
+    generates:
+      - "{{.DIST_DIR}}/{{.BOOK_NAME}}.html"
+    cmds:
+      - echo "Building HTML..."
+      - mkdir -p {{.DIST_DIR}}
+      - cp book.css {{.DIST_DIR}}/
+      - pandoc {{.DIST_DIR}}/{{.BOOK_NAME}}.md --metadata-file=pandoc-metadata.yaml --css=book.css --standalone --toc -o {{.DIST_DIR}}/{{.BOOK_NAME}}.html
+      - echo "HTML generated successfully at {{.DIST_DIR}}/{{.BOOK_NAME}}.html"
+
+  all:
+    desc: Build all formats (PDF, EPUB, HTML)
+    deps: [pdf, epub, html]
+    cmds:
+      - echo "All formats built successfully!"
+      - echo "Files generated in {{.DIST_DIR}}/"
+      - ls -la {{.DIST_DIR}}/
+
+  watch:
+    desc: Watch for changes and rebuild automatically
+    deps: [check-typst]
+    cmds:
+      - echo "Watching for changes..."
+      - typst watch main.typ windsor-cli-book.pdf
+
+  convert:
+    desc: Build PDF and convert to images for inspection
+    deps: [check-typst]
+    sources:
+      - main.typ
+      - template.typ
+      - chapters/preface/preface.typ
+      - chapters/chapter01/chapter01.typ
+    generates:
+      - "{{.OUTPUT_DIR}}/page-{n}.png"
+    cmds:
+      - echo "Converting to PNG images for inspection..."
+      - mkdir -p {{.OUTPUT_DIR}}
+      - typst compile main.typ {{.OUTPUT_DIR}}/page-{n}.png
+      - echo "✅ Images generated in {{.OUTPUT_DIR}}/"
+      - ls -la {{.OUTPUT_DIR}}/
+
+  clean:
+    desc: Remove generated files
+    cmds:
+      - echo "Cleaning generated files..."
+      - rm -f windsor-cli-book.pdf book.md
+      - rm -rf pdf_pages/ {{.DIST_DIR}}/
+      - echo "Clean complete"
+
+  help:
+    desc: Show available tasks
+    cmds:
+      - |
+        echo "Windsor CLI Book - Multi-Format Publishing System"
+        echo ""
+        echo "Build tasks:"
+        echo "  pdf           Build PDF (default)"
+        echo "  markdown      Convert to Markdown"
+        echo "  epub          Build EPUB"
+        echo "  html          Build HTML"
+        echo "  all           Build all formats"
+        echo ""
+        echo "Development tasks:"
+        echo "  watch         Watch for changes and rebuild PDF"
+        echo "  convert       Build PDF and convert to images for inspection"
+        echo "  clean         Remove generated files"
+        echo ""
+        echo "Installation tasks:"
+        echo "  install-all   Install all required tools"
+        echo "  install-typst Install Typst"
+        echo "  install-typlite Install typlite"
+        echo "  install-pandoc Install pandoc"
+        echo ""
+        echo "Quick start:"
+        echo "  task install-all   # Install all tools"
+        echo "  task all          # Build all formats"
+        echo "  task watch        # Watch for changes"
+        echo ""
+        echo "All output files go to the dist/ folder"
+        echo "Or run 'task --list' to see all available tasks"
+
+  dev:
+    desc: Development mode - build and watch
+    deps: [pdf]
+    cmds:
+      - task: watch
+
+  build:
+    desc: Alias for pdf task
+    cmds:
+      - task: pdf
+
+  inspect:
+    desc: Alias for convert task
+    cmds:
+      - task: convert

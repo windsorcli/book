@@ -1,0 +1,26 @@
+---
+title: "Unified Cloud Native Development with Windsor"
+subtitle: "A Comprehensive Guide to Infrastructure Orchestration"
+author: "Ryan VanGundy"
+date: "2025"
+lang: "en-US"
+description: "A comprehensive guide to using Windsor CLI for unified cloud-native development, covering infrastructure orchestration, blueprint-driven development, and multi-cloud deployment strategies."
+
+# EPUB-specific metadata
+publisher: "Self-Published"
+identifier: "windsor-cli-guide"
+rights: "© 2025 Ryan VanGundy. All rights reserved."
+
+# HTML-specific metadata
+css: "book.css"
+standalone: true
+toc: true
+toc-depth: 3
+number-sections: true
+
+# Common formatting
+documentclass: book
+geometry: "margin=1in"
+fontsize: 11pt
+linestretch: 1.2
+---
