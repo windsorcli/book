@@ -13,13 +13,13 @@ on:
       - '[0-9][0-9][0-9][0-9].[0-9].[0-9][0-9].[0-9]'      # YYYY.M.DD.N
   pull_request:
     branches:
-      - main  # Only run on PRs to main
+      - main
 
 jobs:
   build-and-upload:
     runs-on: ubuntu-latest
     permissions:
-      contents: read  # Only need to read code
+      contents: read
 
     steps:
       - name: Checkout code
@@ -92,3 +92,66 @@ jobs:
           name: windsor-book${{ startsWith(github.ref, 'refs/tags/') && format('-{0}', github.ref_name) || '' }}
           path: dist/
           retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 0 || 30 }}
+
+      - name: Generate changelog
+        id: changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          # Get the last release tag
+          LAST_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+
+          if [ -z "$LAST_TAG" ]; then
+            echo "## First Release" > changelog.md
+            echo "" >> changelog.md
+            echo "Initial release of the Windsor CLI book." >> changelog.md
+          else
+            echo "## Changes since $LAST_TAG" > changelog.md
+            echo "" >> changelog.md
+
+            # Get commits since last tag, format as changelog
+            git log --oneline --pretty=format:"- %s" $LAST_TAG..HEAD >> changelog.md
+
+            # If no commits, add a note
+            if [ ! -s changelog.md ]; then
+              echo "- Documentation updates and improvements" >> changelog.md
+            fi
+          fi
+
+          # Set output for use in release
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat changelog.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2.3.2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Windsor CLI Book ${{ github.ref_name }}"
+          body: |
+            # Windsor CLI Book Release ${{ github.ref_name }}
+
+            **Published:** ${{ github.ref_name }}
+
+            ## 📚 Available Formats
+
+            - **PDF**: Professional print-ready format with full typography
+            - **EPUB**: E-reader compatible format
+            - **HTML**: Standalone web page with navigation (includes CSS)
+            - **Markdown**: Raw documentation format
+
+            ## 📝 Changelog
+
+            ${{ steps.changelog.outputs.changelog }}
+
+            ---
+
+            *This release covers Windsor CLI development practices and infrastructure orchestration.*
+          files: |
+            dist/unified-cloud-native-development-with-windsor.pdf
+            dist/unified-cloud-native-development-with-windsor.epub
+            dist/unified-cloud-native-development-with-windsor.html
+            dist/unified-cloud-native-development-with-windsor.md
+            dist/book.css
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

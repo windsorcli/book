@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  release:
+  create-tag:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -15,8 +15,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Generate CalVer version
-        id: calver
+      - name: Generate CalVer version and create tag
         run: |
           # Generate CalVer version (YYYY.MM.DD format)
           VERSION=$(date +"%Y.%m.%d")
@@ -31,77 +30,11 @@ jobs:
           done
 
           echo "Generated version: $FINAL_VERSION"
-          echo "version=$FINAL_VERSION" >> $GITHUB_OUTPUT
 
-          # Create the tag
+          # Create and push the tag
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a "$FINAL_VERSION" -m "Release $FINAL_VERSION"
           git push origin "$FINAL_VERSION"
 
-      - name: Download artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
-        with:
-          name: windsor-book-${{ steps.calver.outputs.version }}
-          path: dist/
-
-      - name: Generate changelog
-        id: changelog
-        run: |
-          # Get the last release tag
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-
-          if [ -z "$LAST_TAG" ]; then
-            echo "## First Release" > changelog.md
-            echo "" >> changelog.md
-            echo "Initial release of the Windsor CLI book." >> changelog.md
-          else
-            echo "## Changes since $LAST_TAG" > changelog.md
-            echo "" >> changelog.md
-
-            # Get commits since last tag, format as changelog
-            git log --oneline --pretty=format:"- %s" $LAST_TAG..HEAD >> changelog.md
-
-            # If no commits, add a note
-            if [ ! -s changelog.md ]; then
-              echo "- Documentation updates and improvements" >> changelog.md
-            fi
-          fi
-
-          # Set output for use in release
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          cat changelog.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Create Release
-        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2.3.2
-        with:
-          tag_name: ${{ steps.calver.outputs.version }}
-          name: "Windsor CLI Book ${{ steps.calver.outputs.version }}"
-          body: |
-            # Windsor CLI Book Release ${{ steps.calver.outputs.version }}
-
-            **Published:** ${{ steps.calver.outputs.version }}
-
-            ## 📚 Available Formats
-
-            - **PDF**: Professional print-ready format with full typography
-            - **EPUB**: E-reader compatible format
-            - **HTML**: Standalone web page with navigation (includes CSS)
-            - **Markdown**: Raw documentation format
-
-            ## 📝 Changelog
-
-            ${{ steps.changelog.outputs.changelog }}
-
-            ---
-
-            *This release covers Windsor CLI development practices and infrastructure orchestration.*
-          files: |
-            dist/unified-cloud-native-development-with-windsor.pdf
-            dist/unified-cloud-native-development-with-windsor.epub
-            dist/unified-cloud-native-development-with-windsor.html
-            dist/unified-cloud-native-development-with-windsor.md
-            dist/book.css
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "Created and pushed tag: $FINAL_VERSION"
