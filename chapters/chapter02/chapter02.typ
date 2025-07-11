@@ -1,5 +1,5 @@
 #import "/src/utils/page-break-helpers.typ": *
-#import "/src/template.typ": subheading
+#import "/src/template.typ": subheading, troubleshooting-start, troubleshooting-end
 
 = Local Development Workflows
 
@@ -649,22 +649,11 @@ Throughout this workflow, Windsor ensures that your tools are configured correct
 
 This chapter guided you through setting up and validating a complete local cloud environment with Windsor. You learned how to initialize a project, check prerequisites, start the environment, and verify that all core infrastructure is running. With your local environment operational, you are ready to explore Windsor's blueprint system and advanced deployment workflows in the next chapter.
 
+#troubleshooting-start()
+
 #pagebreak()
 
-// Set page background with refined edge tab for troubleshooting section
-#set page(
-  background: place(
-    right + top,
-    dx: 0pt,
-    dy: 12%,
-    rect(
-      width: 8pt,
-      height: 30%,
-      fill: rgb("#8b4513"),
-      stroke: none
-    )
-  )
-)
+== Troubleshooting
 
 // Academic styling with subtle borders and typography
 #block(
@@ -674,8 +663,6 @@ This chapter guided you through setting up and validating a complete local cloud
   width: 100%,
   breakable: true,
 )[
-
-== Troubleshooting
 
 Windsor's local environment involves complex interactions between Docker, networking, and Kubernetes. This section provides solutions to common issues you may encounter during setup and operation.
 
@@ -784,10 +771,9 @@ wsl --set-default-version 2", lang: "powershell")
   - Post an issue on the Windsor GitHub repository
 ]
 
-// Reset page formatting after troubleshooting section
-#set page(background: none)
+#troubleshooting-end()
 
-#v(1em)
+#pagebreak()
 
 #figure(
   image("/chapters/chapter02/final_image.png", width: 60%),

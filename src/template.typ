@@ -24,10 +24,29 @@
   // Limit PDF outline/bookmark depth to 2 levels for academic text standards
   set outline(depth: 2)
 
+  // State to track troubleshooting sections
+  let troubleshooting-mode = state("troubleshooting", false)
+
   // Page setup with improved page break handling
   set page(
     paper: paper,
     margin: margin,
+    background: context {
+      // Show red edge tab when in troubleshooting mode
+      if troubleshooting-mode.get() {
+        place(
+          right + top,
+          dx: 0pt,
+          dy: 12%,
+          rect(
+            width: 8pt,
+            height: 30%,
+            fill: rgb("#8b4513"),
+            stroke: none
+          )
+        )
+      }
+    },
     header: context {
       // Only show headers after the first page
       if counter(page).get().first() > 1 {
@@ -350,4 +369,13 @@
     sticky: true,
     text(size: 13pt, weight: "semibold", fill: rgb("#3a3a3a"))[#content]
   )
+}
+
+// Helper functions for troubleshooting sections
+#let troubleshooting-start() = {
+  state("troubleshooting", false).update(true)
+}
+
+#let troubleshooting-end() = {
+  state("troubleshooting", false).update(false)
 }

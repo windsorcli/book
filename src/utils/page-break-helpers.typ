@@ -90,7 +90,7 @@
       above: 1em,
       below: 1em,
       text(
-        font: ("Monaco", "Courier New", "monospace"),
+        font: ("Monaco", "Courier New"),
         size: 0.9em,
         if lang == "bash" {
           highlight-bash(content)
@@ -132,7 +132,7 @@
       above: 1em,
       below: 1em,
       text(
-        font: ("Monaco", "Courier New", "monospace"),
+        font: ("Monaco", "Courier New"),
         size: 0.9em,
         [
           #if lang == "bash" {
