@@ -104,11 +104,6 @@ tasks:
 
   diagrams:
     desc: Generate TikZ diagrams
-    sources:
-      - diagrams/src/*.tex
-      - scripts/build-diagrams.sh
-    generates:
-      - diagrams/generated/*.png
     cmds:
       - echo "🎨 Building diagrams..."
       - ./scripts/build-diagrams.sh
@@ -117,16 +112,6 @@ tasks:
   pdf:
     desc: Build the PDF
     deps: [check-typst, diagrams]
-    sources:
-      - src/main.typ
-      - src/template.typ
-      - src/utils/page-break-helpers.typ
-      - src/utils/page-break-utils.typ
-      - chapters/preface/preface.typ
-      - chapters/chapter01/chapter01.typ
-      - diagrams/generated/*.png
-    generates:
-      - "{{.DIST_DIR}}/{{.BOOK_NAME}}.pdf"
     cmds:
       - echo "Building Windsor CLI book PDF..."
       - mkdir -p {{.DIST_DIR}}
@@ -136,13 +121,6 @@ tasks:
   markdown:
     desc: Convert Typst to Markdown using typlite
     deps: [check-typlite, diagrams]
-    sources:
-      - src/main-lite.typ
-      - chapters/preface/preface.typ
-      - chapters/chapter01/chapter01.typ
-      - diagrams/generated/*.png
-    generates:
-      - "{{.DIST_DIR}}/{{.BOOK_NAME}}.md"
     cmds:
       - echo "Converting Typst to Markdown..."
       - mkdir -p {{.DIST_DIR}}
@@ -152,8 +130,6 @@ tasks:
   epub:
     desc: Build EPUB from Markdown
     deps: [check-pandoc, markdown]
-    generates:
-      - "{{.DIST_DIR}}/{{.BOOK_NAME}}.epub"
     cmds:
       - echo "Building EPUB..."
       - mkdir -p {{.DIST_DIR}}
@@ -165,8 +141,6 @@ tasks:
   html:
     desc: Build HTML from Markdown
     deps: [check-pandoc, markdown]
-    generates:
-      - "{{.DIST_DIR}}/{{.BOOK_NAME}}.html"
     cmds:
       - echo "Building HTML..."
       - mkdir -p {{.DIST_DIR}}
@@ -194,16 +168,6 @@ tasks:
   convert:
     desc: Build PDF and convert to images for inspection
     deps: [check-typst, diagrams]
-    sources:
-      - src/main.typ
-      - src/template.typ
-      - src/utils/page-break-helpers.typ
-      - src/utils/page-break-utils.typ
-      - chapters/preface/preface.typ
-      - chapters/chapter01/chapter01.typ
-      - diagrams/generated/*.png
-    generates:
-      - "{{.OUTPUT_DIR}}/page-{n}.png"
     cmds:
       - echo "Converting to PNG images for inspection..."
       - mkdir -p {{.OUTPUT_DIR}}
