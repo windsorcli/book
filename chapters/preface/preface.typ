@@ -26,11 +26,11 @@ This book documents how Windsor approaches these challenges and how to apply it 
 
 This book is designed for:
 
-+ *Platform Engineers* who need to standardize tooling and infrastructure across development teams
-+ *DevOps Engineers* looking to simplify multi-environment deployment workflows
-+ *Software Developers* who want to focus on application code rather than infrastructure configuration
-+ *Engineering Managers* seeking to reduce onboarding time and improve team productivity
-+ *System Administrators* transitioning to cloud-native architectures
+1. *Platform Engineers* who need to standardize tooling and infrastructure across development teams
+2. *DevOps Engineers* looking to simplify multi-environment deployment workflows
+3. *Software Developers* who want to focus on application code rather than infrastructure configuration
+4. *Engineering Managers* seeking to reduce onboarding time and improve team productivity
+5. *System Administrators* transitioning to cloud-native architectures
 
 You don't need deep expertise in every tool that Windsor integrates—that's precisely the point. Windsor acts as a unifying layer that allows you to leverage powerful infrastructure tools without becoming an expert in each one.
 

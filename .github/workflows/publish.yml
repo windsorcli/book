@@ -128,8 +128,23 @@ jobs:
         id: changelog
         if: startsWith(github.ref, 'refs/tags/') || inputs.tag_name
         run: |
-          # Get the last release tag
-          LAST_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+          # Get all tags sorted by version
+          ALL_TAGS=$(git tag --sort=-version:refname)
+          CURRENT_TAG="${{ inputs.tag_name || github.ref_name }}"
+
+          # Find the previous tag (skip the current one)
+          LAST_TAG=""
+          FOUND_CURRENT=false
+          for tag in $ALL_TAGS; do
+            if [ "$tag" = "$CURRENT_TAG" ]; then
+              FOUND_CURRENT=true
+              continue
+            fi
+            if [ "$FOUND_CURRENT" = true ]; then
+              LAST_TAG="$tag"
+              break
+            fi
+          done
 
           if [ -z "$LAST_TAG" ]; then
             echo "## First Release" > changelog.md
@@ -140,10 +155,10 @@ jobs:
             echo "" >> changelog.md
 
             # Get commits since last tag, format as changelog
-            git log --oneline --pretty=format:"- %s" $LAST_TAG..HEAD >> changelog.md
+            git log --oneline --pretty=format:"- %s" $LAST_TAG..$CURRENT_TAG >> changelog.md
 
             # If no commits, add a note
-            if [ ! -s changelog.md ]; then
+            if [ ! -s changelog.md ] || [ "$(wc -l < changelog.md)" -le 2 ]; then
               echo "- Documentation updates and improvements" >> changelog.md
             fi
           fi
