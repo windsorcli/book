@@ -50,3 +50,4 @@
 // Include content
 #include "/chapters/preface/preface.typ"
 #include "/chapters/chapter01/chapter01.typ"
+#include "/chapters/chapter02/chapter02.typ"

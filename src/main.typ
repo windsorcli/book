@@ -85,5 +85,5 @@
 
 #set heading(numbering: "1.")
 #include "/chapters/chapter01/chapter01.typ"
-// #include "/chapters/chapter02/chapter02.typ"
+#include "/chapters/chapter02/chapter02.typ"
 // #include "/chapters/chapter03/chapter03.typ"
