@@ -18,6 +18,9 @@ dist/
 # PDF inspection pages
 pdf_pages/
 
+# Generated diagrams
+diagrams/generated/
+
 # Cache files
 .quarto/
 *_cache/

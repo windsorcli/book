@@ -79,16 +79,27 @@ jobs:
         id: cache-apt
         with:
           path: /var/cache/apt
-          key: ${{ runner.os }}-apt-pandoc
+          key: ${{ runner.os }}-apt-pandoc-diagrams-v2
 
-      - name: Install pandoc
+      - name: Install pandoc and diagram dependencies
         run: |
-          if ! command -v pandoc &> /dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y pandoc
-          else
-            echo "pandoc already installed"
-          fi
+          sudo apt-get update
+          sudo apt-get install -y \
+            pandoc \
+            texlive-latex-base \
+            texlive-latex-extra \
+            texlive-pictures \
+            imagemagick \
+            librsvg2-bin \
+            ghostscript
+
+          # Verify installations
+          echo "✅ Installed packages:"
+          pandoc --version | head -1
+          pdflatex --version | head -1
+          convert --version | head -1
+          rsvg-convert --version | head -1
+          gs --version | head -1
 
       - name: Build all formats
         run: |

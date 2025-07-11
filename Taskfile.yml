@@ -102,6 +102,18 @@ tasks:
     cmds:
       - echo "All tools installed successfully!"
 
+  diagrams:
+    desc: Generate TikZ diagrams
+    sources:
+      - diagrams/src/*.tex
+      - scripts/build-diagrams.sh
+    generates:
+      - diagrams/generated/*.png
+    cmds:
+      - echo "🎨 Building diagrams..."
+      - ./scripts/build-diagrams.sh
+      - echo "✅ Diagrams generated successfully"
+
   pdf:
     desc: Build the PDF
     deps: [check-typst]
@@ -125,6 +137,7 @@ tasks:
       - main-lite.typ
       - chapters/preface/preface.typ
       - chapters/chapter01/chapter01.typ
+      - diagrams/generated/*.png
     generates:
       - "{{.DIST_DIR}}/{{.BOOK_NAME}}.md"
     cmds:
@@ -193,7 +206,7 @@ tasks:
     cmds:
       - echo "Cleaning generated files..."
       - rm -f windsor-cli-book.pdf book.md
-      - rm -rf pdf_pages/ {{.DIST_DIR}}/
+      - rm -rf pdf_pages/ {{.DIST_DIR}}/ diagrams/generated/
       - echo "Clean complete"
 
   help:
