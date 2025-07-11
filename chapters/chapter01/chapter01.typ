@@ -246,10 +246,61 @@ Windsor requires several tools to function effectively:
 
 Windsor can be installed through package managers like Homebrew or Chocolatey, or by downloading binaries directly from the GitHub releases page. The complete installation process and tool setup will be covered step-by-step in the upcoming lab exercises.
 
+== Installation and Shell Integration
+
+Install Windsor using your preferred method (Homebrew, Chocolatey, or direct download). See the official documentation for the latest instructions.
+
+After installing Windsor, set up the shell hook to ensure your environment is always configured for the correct Windsor context:
+
+*Bash* (`~/.bashrc`):
+```sh
+eval "$(windsor hook bash)"
+```
+
+#pagebreak()
+
+*Zsh* (`~/.zshrc`):
+```sh
+eval "$(windsor hook zsh)"
+```
+
+*PowerShell* (profile script):
+```powershell
+Invoke-Expression (& windsor hook powershell)
+```
+
+Restart your terminal or source your profile to activate the hook.
+
+The shell hook automatically injects Windsor environment variables and context when you enter a project directory. This ensures all Windsor commands and related tools (Docker, kubectl, etc.) operate with the correct configuration for your current project.
+
+You can display the current Windsor context in your shell prompt for clarity:
+
+*Zsh Example:*
+```zsh
+PS1='%F{82}${WINDSOR_CONTEXT:+[$WINDSOR_CONTEXT] }%f'$PS1
+```
+
+*Bash Example:*
+```bash
+PS1='\[\e[32m\]${WINDSOR_CONTEXT:+[${WINDSOR_CONTEXT}] }\[\e[0m\]'$PS1
+```
+
+*PowerShell Example:*
+```powershell
+function prompt {
+  if ($env:WINDSOR_CONTEXT) {
+    Write-Host "[$env:WINDSOR_CONTEXT] " -NoNewline -ForegroundColor Green
+  }
+  "PS " + $(Get-Location) + "> "
+}
+```
+
+If the environment is not injected, ensure your shell profile is sourced and the hook code is present. To disable, remove the Windsor hook code from your shell profile.
+
 The next chapter will guide you through Windsor's local development workflows, building toward the hands-on lab where you'll experience Windsor's contextual environment management firsthand.
 
 #v(1em)
 
 #figure(
-  image("final_image.png", width: 60%),
+  image("/chapters/chapter01/final_image.png", width: 60%),
 )
