@@ -32,6 +32,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ inputs.tag_name && format('refs/tags/{0}', inputs.tag_name) || github.ref }}
+          fetch-depth: 0  # Fetch full history including all tags
 
       - name: Cache Task binary
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
@@ -128,8 +129,28 @@ jobs:
         id: changelog
         if: startsWith(github.ref, 'refs/tags/') || inputs.tag_name
         run: |
-          # Get the last release tag
-          LAST_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+          # Get all tags sorted by version
+          ALL_TAGS=$(git tag --sort=-version:refname)
+          CURRENT_TAG="${{ inputs.tag_name || github.ref_name }}"
+
+          echo "🔍 Debug: Current tag: $CURRENT_TAG"
+          echo "🔍 Debug: All tags: $ALL_TAGS"
+
+          # Find the previous tag (skip the current one)
+          LAST_TAG=""
+          FOUND_CURRENT=false
+          for tag in $ALL_TAGS; do
+            if [ "$tag" = "$CURRENT_TAG" ]; then
+              FOUND_CURRENT=true
+              continue
+            fi
+            if [ "$FOUND_CURRENT" = true ]; then
+              LAST_TAG="$tag"
+              break
+            fi
+          done
+
+          echo "🔍 Debug: Previous tag: $LAST_TAG"
 
           if [ -z "$LAST_TAG" ]; then
             echo "## First Release" > changelog.md
@@ -140,18 +161,30 @@ jobs:
             echo "" >> changelog.md
 
             # Get commits since last tag, format as changelog
-            git log --oneline --pretty=format:"- %s" $LAST_TAG..HEAD >> changelog.md
+            echo "🔍 Debug: Running git log $LAST_TAG..$CURRENT_TAG"
+            git log --oneline --pretty=format:"- %s" $LAST_TAG..$CURRENT_TAG >> changelog.md
 
             # If no commits, add a note
-            if [ ! -s changelog.md ]; then
+            if [ ! -s changelog.md ] || [ "$(wc -l < changelog.md)" -le 2 ]; then
               echo "- Documentation updates and improvements" >> changelog.md
             fi
           fi
 
-          # Set output for use in release
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          cat changelog.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "🔍 Debug: Generated changelog:"
+          cat changelog.md
+
+          # Set output for use in release using base64 encoding to avoid delimiter issues
+          CHANGELOG_CONTENT=$(cat changelog.md | base64 -w 0)
+          echo "changelog_b64=$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
+
+      - name: Decode changelog
+        id: decode_changelog
+        if: startsWith(github.ref, 'refs/tags/') || inputs.tag_name
+        run: |
+          echo "${{ steps.changelog.outputs.changelog_b64 }}" | base64 -d > decoded_changelog.md
+          echo "changelog<<CHANGELOG_DELIMITER" >> $GITHUB_OUTPUT
+          cat decoded_changelog.md >> $GITHUB_OUTPUT
+          echo "CHANGELOG_DELIMITER" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2.3.2
@@ -173,7 +206,7 @@ jobs:
 
             ## 📝 Changelog
 
-            ${{ steps.changelog.outputs.changelog }}
+            ${{ steps.decode_changelog.outputs.changelog }}
 
             ---
 

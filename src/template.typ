@@ -24,10 +24,29 @@
   // Limit PDF outline/bookmark depth to 2 levels for academic text standards
   set outline(depth: 2)
 
+  // State to track troubleshooting sections
+  let troubleshooting-mode = state("troubleshooting", false)
+
   // Page setup with improved page break handling
   set page(
     paper: paper,
     margin: margin,
+    background: context {
+      // Show brownish red edge tab when in troubleshooting mode
+      if troubleshooting-mode.get() {
+        place(
+          right + top,
+          dx: 0pt,
+          dy: 12%,
+          rect(
+            width: 8pt,
+            height: 30%,
+            fill: rgb("#8b4513"),
+            stroke: none
+          )
+        )
+      }
+    },
     header: context {
       // Only show headers after the first page
       if counter(page).get().first() > 1 {
@@ -41,12 +60,25 @@
         } else {
           align(right, text(size: 9pt, fill: gray.darken(20%))[
             #context {
+              let current-page = here().page()
               let headings = query(heading.where(level: 1))
-              if headings.len() > 0 {
-                let current-heading = headings.last()
+              let current-heading = none
+
+              // Find the last heading that appears on or before current page
+              for heading in headings {
+                if heading.location().page() <= current-page {
+                  current-heading = heading
+                } else {
+                  break
+                }
+              }
+
+              if current-heading != none {
                 // Check if the current heading has numbering
                 if current-heading.numbering != none {
-                  let chapter-num = counter(heading).get().first()
+                  // Get the chapter number from the heading's counter value
+                  let chapter-counter = counter(heading).at(current-heading.location())
+                  let chapter-num = chapter-counter.first()
                   if chapter-num > 0 {
                     "Chapter " + str(chapter-num) + ": " + current-heading.body
                   } else {
@@ -81,7 +113,7 @@
 
   // Professional typography with quality serif font and widow/orphan control
   set text(
-    font: ("Libertinus Serif", "Times New Roman", "Times"),
+    font: ("Libertinus Serif", "Times New Roman", "Liberation Serif", "Times"),
     size: 11pt,
     lang: "en"
   )
@@ -151,7 +183,7 @@
 
   // Code block styling with intelligent page break handling
   show raw.where(block: true): it => {
-    set text(font: ("Monaco", "Menlo", "Courier New"), size: 9pt)
+    set text(font: ("Monaco", "Menlo", "Liberation Mono", "Courier New", "Courier"), size: 9pt)
     set par(leading: 0.65em)  // Tighter line spacing within code blocks
 
     // Estimate content size for break decisions
@@ -187,7 +219,7 @@
       stroke: 1pt + rgb("#e1e4e8"),
       outset: (x: 3pt, y: 2pt),
       radius: 3pt,
-      text(font: ("Monaco", "Menlo", "Courier New"), size: 9pt, it)
+      text(font: ("Monaco", "Menlo", "Liberation Mono", "Courier New", "Courier"), size: 9pt, it)
     )
   }
 
@@ -200,28 +232,20 @@
     marker: ([•], [◦], [‣])
   )
 
-  // Override list item formatting with proper spacing
-  show list.item: it => {
-    block(
-      breakable: true,
-      above: 0.6em,  // More space above each list item
-      below: 0.4em,  // Normal space below
-      {
-        set par(leading: 0.75em, spacing: 0em)  // Zero paragraph spacing within items
-        set text(size: 11pt)  // Match body text size
-        it
-      }
-    )
-  }
+
 
   // Add proper spacing above the entire list
   show list: it => {
     block(
       above: 1em,  // Proper separation from preceding paragraph
-      below: 0.8em,  // Normal separation after list
+      below: 1.6em,  // Increased spacing after entire list
       it
     )
   }
+
+
+
+
 
   set enum(
     indent: 1.2em,  // Increased to match list indent
@@ -230,28 +254,20 @@
     tight: false  // Back to normal spacing
   )
 
-  // Override enum item formatting with proper spacing
-  show enum.item: it => {
-    block(
-      breakable: true,
-      above: 0.6em,  // More space above each enum item
-      below: 0.4em,  // Normal space below
-      {
-        set par(leading: 0.75em, spacing: 0em)  // Zero paragraph spacing within items
-        set text(size: 11pt)  // Match body text size
-        it
-      }
-    )
-  }
+
 
   // Add proper spacing above the entire enum
   show enum: it => {
     block(
       above: 1em,  // Proper separation from preceding paragraph
-      below: 0.8em,  // Normal separation after enum
+      below: 1.6em,  // Increased spacing after entire enum
       it
     )
   }
+
+
+
+
 
   // Quote styling with page break control
   show quote: it => {
@@ -350,4 +366,15 @@
     sticky: true,
     text(size: 13pt, weight: "semibold", fill: rgb("#3a3a3a"))[#content]
   )
+}
+
+// Helper functions for troubleshooting sections
+#let troubleshooting-start() = {
+  state("troubleshooting", false).update(true)
+  pagebreak()
+}
+
+#let troubleshooting-end() = {
+  state("troubleshooting", false).update(false)
+  pagebreak()
 }
