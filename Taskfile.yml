@@ -201,6 +201,7 @@ tasks:
       - src/utils/page-break-utils.typ
       - chapters/preface/preface.typ
       - chapters/chapter01/chapter01.typ
+      - diagrams/generated/*.png
     generates:
       - "{{.OUTPUT_DIR}}/page-{n}.png"
     cmds:
