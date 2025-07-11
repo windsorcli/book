@@ -48,5 +48,5 @@
 // No need for Typst's outline() here as it creates redundant static TOC
 
 // Include content
-#include "chapters/preface/preface.typ"
-#include "chapters/chapter01/chapter01.typ"
+#include "/chapters/preface/preface.typ"
+#include "/chapters/chapter01/chapter01.typ"

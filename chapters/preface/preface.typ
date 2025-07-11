@@ -1,3 +1,5 @@
+#import "/src/utils/page-break-helpers.typ": *
+
 = Preface
 
 Cloud-native development has revolutionized how we build and deploy applications, but it has also introduced significant complexity. Developers today must navigate an ever-expanding ecosystem of tools, platforms, and deployment targets. Each environment—from local development to staging to production—often requires different configurations, credentials, and deployment strategies. This fragmentation creates friction that slows development velocity and increases the likelihood of errors.
@@ -24,11 +26,11 @@ This book documents how Windsor approaches these challenges and how to apply it 
 
 This book is designed for:
 
-- *Platform Engineers* who need to standardize tooling and infrastructure across development teams
-- *DevOps Engineers* looking to simplify multi-environment deployment workflows
-- *Software Developers* who want to focus on application code rather than infrastructure configuration
-- *Engineering Managers* seeking to reduce onboarding time and improve team productivity
-- *System Administrators* transitioning to cloud-native architectures
++ *Platform Engineers* who need to standardize tooling and infrastructure across development teams
++ *DevOps Engineers* looking to simplify multi-environment deployment workflows
++ *Software Developers* who want to focus on application code rather than infrastructure configuration
++ *Engineering Managers* seeking to reduce onboarding time and improve team productivity
++ *System Administrators* transitioning to cloud-native architectures
 
 You don't need deep expertise in every tool that Windsor integrates—that's precisely the point. Windsor acts as a unifying layer that allows you to leverage powerful infrastructure tools without becoming an expert in each one.
 
@@ -36,12 +38,12 @@ You don't need deep expertise in every tool that Windsor integrates—that's pre
 
 This book takes you on a journey from Windsor's fundamental concepts to advanced deployment patterns. You'll discover:
 
-- How Windsor's blueprint system enables infrastructure-as-code that scales across environments
-- The contextual workflow that eliminates configuration drift between development, staging, and production
-- Local cloud simulation that enables full-stack development without cloud dependencies
-- Integration patterns with AWS, Azure, Kubernetes, IaC tooling, and GitOps workflows
-- Secrets management strategies that maintain security without sacrificing developer experience
-- Advanced customization techniques for enterprise environments
+1. How Windsor's blueprint system enables infrastructure-as-code that scales across environments
+2. The contextual workflow that eliminates configuration drift between development, staging, and production
+3. Local cloud simulation that enables full-stack development without cloud dependencies
+4. Integration patterns with AWS, Azure, Kubernetes, IaC tooling, and GitOps workflows
+5. Secrets management strategies that maintain security without sacrificing developer experience
+6. Advanced customization techniques for enterprise environments
 
 #pagebreak()
 

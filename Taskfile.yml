@@ -116,25 +116,28 @@ tasks:
 
   pdf:
     desc: Build the PDF
-    deps: [check-typst]
+    deps: [check-typst, diagrams]
     sources:
-      - main.typ
-      - template.typ
+      - src/main.typ
+      - src/template.typ
+      - src/utils/page-break-helpers.typ
+      - src/utils/page-break-utils.typ
       - chapters/preface/preface.typ
       - chapters/chapter01/chapter01.typ
+      - diagrams/generated/*.png
     generates:
       - "{{.DIST_DIR}}/{{.BOOK_NAME}}.pdf"
     cmds:
       - echo "Building Windsor CLI book PDF..."
       - mkdir -p {{.DIST_DIR}}
-      - typst compile main.typ {{.DIST_DIR}}/{{.BOOK_NAME}}.pdf
+      - typst compile --root . src/main.typ {{.DIST_DIR}}/{{.BOOK_NAME}}.pdf
       - echo "PDF generated successfully at {{.DIST_DIR}}/{{.BOOK_NAME}}.pdf"
 
   markdown:
     desc: Convert Typst to Markdown using typlite
-    deps: [check-typlite]
+    deps: [check-typlite, diagrams]
     sources:
-      - main-lite.typ
+      - src/main-lite.typ
       - chapters/preface/preface.typ
       - chapters/chapter01/chapter01.typ
       - diagrams/generated/*.png
@@ -143,7 +146,7 @@ tasks:
     cmds:
       - echo "Converting Typst to Markdown..."
       - mkdir -p {{.DIST_DIR}}
-      - typlite main-lite.typ {{.DIST_DIR}}/{{.BOOK_NAME}}.md
+      - typlite --root . src/main-lite.typ {{.DIST_DIR}}/{{.BOOK_NAME}}.md
       - echo "Markdown generated successfully at {{.DIST_DIR}}/{{.BOOK_NAME}}.md"
 
   epub:
@@ -154,7 +157,9 @@ tasks:
     cmds:
       - echo "Building EPUB..."
       - mkdir -p {{.DIST_DIR}}
-      - pandoc {{.DIST_DIR}}/{{.BOOK_NAME}}.md --metadata-file=pandoc-metadata.yaml -o {{.DIST_DIR}}/{{.BOOK_NAME}}.epub
+      - cp -r chapters {{.DIST_DIR}}/
+      - cp -r diagrams {{.DIST_DIR}}/
+      - cd {{.DIST_DIR}} && pandoc {{.BOOK_NAME}}.md --metadata-file=../src/config/pandoc-metadata.yaml -o {{.BOOK_NAME}}.epub
       - echo "EPUB generated successfully at {{.DIST_DIR}}/{{.BOOK_NAME}}.epub"
 
   html:
@@ -165,8 +170,10 @@ tasks:
     cmds:
       - echo "Building HTML..."
       - mkdir -p {{.DIST_DIR}}
-      - cp book.css {{.DIST_DIR}}/
-      - pandoc {{.DIST_DIR}}/{{.BOOK_NAME}}.md --metadata-file=pandoc-metadata.yaml --css=book.css --standalone --toc -o {{.DIST_DIR}}/{{.BOOK_NAME}}.html
+      - cp assets/book.css {{.DIST_DIR}}/
+      - cp -r chapters {{.DIST_DIR}}/
+      - cp -r diagrams {{.DIST_DIR}}/
+      - cd {{.DIST_DIR}} && pandoc {{.BOOK_NAME}}.md --metadata-file=../src/config/pandoc-metadata.yaml --css=book.css --standalone --toc -o {{.BOOK_NAME}}.html
       - echo "HTML generated successfully at {{.DIST_DIR}}/{{.BOOK_NAME}}.html"
 
   all:
@@ -182,14 +189,16 @@ tasks:
     deps: [check-typst]
     cmds:
       - echo "Watching for changes..."
-      - typst watch main.typ windsor-cli-book.pdf
+      - typst watch --root . src/main.typ windsor-cli-book.pdf
 
   convert:
     desc: Build PDF and convert to images for inspection
-    deps: [check-typst]
+    deps: [check-typst, diagrams]
     sources:
-      - main.typ
-      - template.typ
+      - src/main.typ
+      - src/template.typ
+      - src/utils/page-break-helpers.typ
+      - src/utils/page-break-utils.typ
       - chapters/preface/preface.typ
       - chapters/chapter01/chapter01.typ
     generates:
@@ -197,7 +206,7 @@ tasks:
     cmds:
       - echo "Converting to PNG images for inspection..."
       - mkdir -p {{.OUTPUT_DIR}}
-      - typst compile main.typ {{.OUTPUT_DIR}}/page-{n}.png
+      - typst compile --root . src/main.typ {{.OUTPUT_DIR}}/page-{n}.png
       - echo "✅ Images generated in {{.OUTPUT_DIR}}/"
       - ls -la {{.OUTPUT_DIR}}/
 
@@ -251,6 +260,11 @@ tasks:
     desc: Alias for pdf task
     cmds:
       - task: pdf
+
+  run:
+    desc: Alias for all task - build all formats
+    cmds:
+      - task: all
 
   inspect:
     desc: Alias for convert task
