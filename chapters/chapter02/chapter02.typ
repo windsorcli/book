@@ -280,52 +280,48 @@ kustomize:
   ...
 ```
 
-The blueprint includes detailed Terraform configuration for both the Kubernetes cluster and GitOps workflows. The cluster configuration specifies:
+The blueprint serves as an holistic configuration that defines your entire environment. Let's examine what each section does:
 
-*Repository*: The URL of the Git repository of the current project. In a local environment, this points to the local Git server running on your machine.
+*Repository*: Points to your project's Git repository. In local development, this references the local Git server that Windsor creates.
 
-*Sources*: References to external blueprint repositories (like the Windsor core repository) that provide reusable infrastructure components.
+*Sources*: References external blueprint repositories (like the Windsor core repository) that provide reusable infrastructure components.
 
-*Terraform*: Infrastructure-as-code definitions that create the foundational resources like the Kubernetes cluster and GitOps workflows.
+*Terraform*: Defines the foundational infrastructure - the Kubernetes cluster and GitOps workflows that will manage everything else.
 
-*Kustomize*: Kubernetes application deployments that install and configure services on top of the infrastructure.
+*Kustomize*: Defines the applications and services that will be deployed on top of the infrastructure.
 
 #subheading[Terraform Configuration Files]
 
-The `terraform/` directory contains environment-specific variable files that customize the infrastructure modules:
+The blueprint's `terraform` section references infrastructure modules, and Windsor creates corresponding `.tfvars` files to customize these modules for your local environment:
 
-*contexts/local/terraform/gitops/flux.tfvars*:
-```hcl
-# Git authentication for local development
-git_username = "local"
-git_password = "local"
-webhook_token = "abcdef123456"
-```
+The `contexts/local/terraform/` directory contains:
 
-This file configures the GitOps workflow with credentials for your local Git service. In production environments, these would contain actual credentials for your Git provider.
-
-The cluster configuration is embedded directly in the blueprint's `values` section rather than a separate `.tfvars` file. This configuration includes:
-
-- Fixed IP addresses for control plane (10.5.0.2) and worker nodes (10.5.0.11)
-- Container registry mirrors pointing to local cache registries
+*cluster/talos.tfvars* - Configures the Kubernetes cluster with:
+- Node endpoints (127.0.0.1:50000 for control plane, 127.0.0.1:50001 for worker)
+- Container registry mirrors pointing to local test registries
 - TLS certificate configuration for secure communication
-- DNS resolver configuration for the `.test` domain
+- Talos machine configuration patches for local development
 
-#subheading[Kustomize Component Dependencies]
+*gitops/flux.tfvars* - Configures the GitOps workflow with:
+- Git authentication credentials for the local Git server
+- Webhook token for triggering deployments
+- Flux installation settings
 
-The Kustomize section defines a comprehensive set of infrastructure components with explicit dependency relationships. Windsor organizes these components into discrete system layers, each with specific responsibilities:
+These `.tfvars` files contain the environment-specific values that customize the reusable Terraform modules. The blueprint defines *what* infrastructure modules to use, while these files define *how* to configure them for your specific context.
 
-- *system-policy*: Policy enforcement (Kyverno)
-- *system-pki*: Certificate management (cert-manager, trust-manager)
-- *system-pki-trust*: Certificate trust distribution
-- *system-csi*: Storage provisioning (OpenEBS)
-- *system-dns*: DNS resolution (CoreDNS, external-dns)
-- *system-ingress*: Traffic routing (NGINX)
-- *system-gitops*: GitOps workflows (Flux)
-- *system-observability*: Monitoring and metrics (Grafana, Prometheus)
-- *system-telemetry*: Telemetry collection and forwarding
+#subheading[Flux Kustomizations]
 
-Each component specifies its dependencies using the `dependsOn` field, ensuring they're deployed in the correct order. For example, the ingress controller depends on the PKI resources being available first. This modular approach allows Windsor to manage complex system dependencies while maintaining clear separation of concerns across different infrastructure domains.
+The blueprint's `kustomize` section defines Flux Kustomizations that represent system layers and application layers to be deployed on your cluster. Each entry specifies:
+
+- *name* - A unique identifier for the application group
+- *path* - The path within the source repository containing the Kustomize configuration
+- *source* - Which source repository to use (typically "core" for Windsor's built-in components)
+- *components* - Specific variants or configurations to include
+- *dependsOn* - Other applications that must be deployed first
+
+For example, the `ingress` configuration depends on `pki-resources` being deployed first, ensuring certificates are available before the ingress controller starts. The `components` field allows you to customize which specific features or configurations to include - like `nginx/nodeport` for local development versus `nginx/loadbalancer` for cloud environments.
+
+These Flux Kustomizations can contain any Kubernetes resources you could deploy on a cluster - from system infrastructure like ingress controllers and certificate managers to application workloads. When deployed, each named group typically becomes a separate Kubernetes namespace (like `system-ingress`, `system-pki`, etc.) containing all the resources for that functional area.
 
 #subheading[Runtime State Directories]
 
@@ -374,14 +370,14 @@ export WINDSOR_PROJECT_ROOT="/path/to/project"
 export WINDSOR_SESSION_TOKEN="iVDTw1h"
 ```
 
-*Windows Output*: On Windows, the output uses Windows-style paths and environment variable syntax:
+*Windows Output*: On Windows, use PowerShell to view environment variables:
 
-```cmd
-set DOCKER_HOST=npipe:////./pipe/docker_engine
-set K8S_AUTH_KUBECONFIG=C:\path\to\project\contexts\local\.kube\config
-set KUBECONFIG=C:\path\to\project\contexts\local\.kube\config
-set REGISTRY_URL=registry.test:5000
-set WINDSOR_CONTEXT=local
+```powershell
+$Env:DOCKER_HOST
+$Env:K8S_AUTH_KUBECONFIG
+$Env:KUBECONFIG
+$Env:REGISTRY_URL
+$Env:WINDSOR_CONTEXT
 ```
 
 Windsor injects a comprehensive set of environment variables that configure all development tools to work with the local environment:
@@ -746,6 +742,18 @@ wsl --shutdown
 wsl --set-default-version 2", lang: "powershell")
 
   Modern Docker Desktop installations handle WSL2 setup automatically. Avoid manual WSL2 configuration unless working with custom Linux distributions.
+
+  === Windsor Hook Not Injecting Environment Variables
+
+  If Windsor environment variables are not being injected into your shell, the Windsor hook may not be set up correctly. To check:
+
+  On bash/zsh:
+  #smart-code("env | grep WINDSOR", lang: "bash")
+
+  On Windows (PowerShell):
+  #smart-code("Get-ChildItem Env: | Where-Object { $_.Name -like 'WINDSOR*' }", lang: "powershell")
+
+  If these commands return no output, Windsor is not injecting environment variables. Review your shell hook setup (see the relevant section in this book) and ensure the Windsor hook is installed and sourced in your shell profile (e.g., `.zshrc`, `.bashrc`, or PowerShell profile).
 
   === Performance Optimization
 
