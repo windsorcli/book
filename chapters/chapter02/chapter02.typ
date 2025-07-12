@@ -172,7 +172,7 @@ Start by creating a new directory for your project and navigating into it:
 #smart-code("mkdir my-windsor-project
 cd my-windsor-project", lang: "bash")
 
-*Windows Users*: Use the same commands in PowerShell, WSL2, or Command Prompt. Windsor works identically across platforms once Docker Desktop is configured with WSL2 backend.
+*Windows Users*: Use the same commands in PowerShell, WSL2, or Command Prompt. Windsor works identically across platforms once Docker Desktop is configured with WSL2 backend. Run PowerShell as Administrator for your first `windsor up local` to properly configure DNS resolution.
 
 When you start a new Windsor project, the first step is initialization:
 
@@ -397,6 +397,8 @@ This is exactly what gets automatically injected when you have Windsor's shell h
     Once your tools are validated and you understand the environment configuration, you can start your local cloud environment:
 
     #smart-code("windsor up", lang: "bash")
+
+    *Windows Users*: Run PowerShell as Administrator for your first `windsor up local` to properly configure DNS resolution for the `.test` domain.
   ]
 )
 
