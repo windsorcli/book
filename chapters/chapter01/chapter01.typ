@@ -109,8 +109,6 @@ Strategically, Windsor represents a "platform-as-a-codebase" approach rather tha
 
 The uniform deployment model eliminates the traditional friction between development and production environments, enabling teams to move seamlessly from local development to production deployment using identical tooling and processes.
 
-#pagebreak()
-
 == Core Concepts and Architecture
 
 Understanding Windsor requires familiarity with several key concepts that work together to provide its unified experience. These concepts form the foundation of Windsor's approach to cloud-native development.
@@ -139,8 +137,6 @@ Each context directory contains a blueprint definition and any environment-speci
 === Blueprints: Infrastructure Definition
 
 Blueprints define the complete infrastructure and application stack for a context using a simple declarative format. Here's what a production blueprint looks like:
-
-#pagebreak()
 
 ```yaml
 kind: Blueprint
@@ -256,8 +252,6 @@ After installing Windsor, set up the shell hook to ensure your environment is al
 ```sh
 eval "$(windsor hook bash)"
 ```
-
-#pagebreak()
 
 *Zsh* (`~/.zshrc`):
 ```sh

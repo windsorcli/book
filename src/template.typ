@@ -1,5 +1,7 @@
 // Professional book template for Windsor CLI documentation
 
+#import "@preview/hydra:0.6.1": hydra
+
 #let book-template(
   title: "",
   subtitle: "",
@@ -60,19 +62,33 @@
         } else {
           align(right, text(size: 9pt, fill: gray.darken(20%))[
             #context {
-              let headings = query(heading.where(level: 1))
-              if headings.len() > 0 {
-                let current-heading = headings.last()
-                // Check if the current heading has numbering
-                if current-heading.numbering != none {
-                  let chapter-num = counter(heading).get().first()
-                  if chapter-num > 0 {
-                    "Chapter " + str(chapter-num) + ": " + current-heading.body
+              // Use hydra to get the current chapter heading
+              let chapter-heading = hydra(1)
+              if chapter-heading != none {
+                // Get all level-1 headings up to and including current page
+                let all-headings = query(heading.where(level: 1))
+                let current-page = here().page()
+
+                // Find the last heading whose page is <= current page
+                let relevant-heading = none
+                for h in all-headings {
+                  if h.location().page() <= current-page {
+                    relevant-heading = h
+                  }
+                }
+
+                if relevant-heading != none {
+                  // Check if this heading has numbering
+                  if relevant-heading.numbering != none {
+                    // Get the chapter number from the counter
+                    let chapter-num = counter(heading).at(relevant-heading.location()).at(0)
+                    "Chapter " + str(chapter-num) + ": " + relevant-heading.body
                   } else {
-                    current-heading.body
+                    relevant-heading.body
                   }
                 } else {
-                  current-heading.body
+                  // Fallback to hydra content
+                  chapter-heading
                 }
               } else {
                 "Chapter"
