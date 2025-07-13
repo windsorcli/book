@@ -639,111 +639,164 @@ This chapter guided you through setting up and validating a complete local cloud
   breakable: true,
 )[
 
-Windsor's local environment involves complex interactions between Docker, networking, and Kubernetes. This section provides solutions to common issues you may encounter during setup and operation.
+Windsor's local environment involves complex interactions between Docker, networking, and Kubernetes. Use this diagnostic checklist to systematically identify and resolve common issues.
 
-  === Cluster Bootstrap Timeouts
+  === Diagnostic Checklist
 
-  If Terraform times out during cluster bootstrap with connection errors like `dial tcp localhost:50000: i/o timeout`, this usually indicates:
+  When encountering issues, work through these checks in order:
 
-  - Docker containers are not running properly
-  - Network connectivity issues between containers
-  - Insufficient system resources
+  *Step 1: Verify Shell Hook Installation*
 
-  First, verify that all Windsor containers are running:
+  Check if Windsor environment variables are active:
+
+  #smart-code("env | grep WINDSOR", lang: "bash")
+
+  On Windows PowerShell:
+
+  #smart-code("Get-ChildItem Env: | Where-Object Name -like '*WINDSOR*'", lang: "powershell")
+
+  ✓ Expected: Multiple `WINDSOR_*` variables should be present
+  ✗ If missing: Shell hook not installed - refer to Chapter 1 for shell hook installation instructions
+
+  *Step 2: Verify Docker Status*
+
+  Check Docker daemon is running:
+
+  #smart-code("docker version", lang: "bash")
+
+  ✓ Expected: Client and Server versions displayed
+  ✗ If failed: Start Docker Desktop or Docker daemon
+
+  *Step 3: Check Windsor Container Status*
+
+  Verify all Windsor containers are running:
 
   #smart-code("docker ps --filter \"label=managed_by=windsor\"", lang: "bash")
 
-  You should see containers for registries, DNS, Git service, and Talos nodes (`controlplane-1.test`, `worker-1.test`). If containers are missing or restarting, check Docker system status:
+  ✓ Expected: Containers for `controlplane-1.test`, `worker-1.test`, `registry.test`, `dns.test`, `git.test`
+  ✗ If missing containers: Run `windsor up` to start environment
 
-  #smart-code("docker system info
-docker stats --no-stream", lang: "bash")
+  *Step 4: Test DNS Resolution*
 
-  For cluster health verification, use Kubernetes commands rather than examining individual container logs:
-
-  #smart-code("kubectl get nodes
-kubectl get pods -A --field-selector=status.phase!=Running", lang: "bash")
-
-  === DNS Resolution Issues
-
-  If you cannot access services using `.test` domains, verify DNS configuration:
+  Verify `.test` domain resolution:
 
   #smart-code("nslookup registry.test", lang: "bash")
 
-  On macOS, check that the resolver configuration exists:
+  ✓ Expected: Resolves to `127.0.0.1` (docker desktop) or `10.5.X.X` (colima, docker native)
+  ✗ If failed: DNS configuration issue - check resolver setup
+
+  On macOS, verify resolver file exists:
 
   #smart-code("ls -la /etc/resolver/test", lang: "bash")
 
-  On Windows, verify DNS configuration in PowerShell:
+  On Windows, check DNS configuration:
 
-  #smart-code("nslookup registry.test
-Get-DnsClientServerAddress", lang: "powershell")
+  #smart-code("nslookup registry.test", lang: "powershell")
 
-  === Insufficient Resources
+  *Step 5: Verify Kubernetes Configuration*
 
-  If containers fail to start or the cluster becomes unresponsive:
+  Check that cluster configuration files exist:
 
-  - Increase Docker Desktop memory allocation to at least 8GB
-  - Increase CPU allocation to at least 4 cores
-  - Ensure at least 20GB of free disk space
-  - Close other resource-intensive applications
+  #smart-code("ls -la contexts/local/.kube/config
+ls -la contexts/local/.talos/config", lang: "bash")
 
-  === Environment Recovery
+  ✓ Expected: Both configuration files should be present
+  ✗ If missing: Cluster not properly bootstrapped - run `windsor up` again
 
-  If your environment becomes corrupted, you can clean up and restart:
+  *Step 6: Verify Kubernetes Cluster*
+
+  Check cluster node status:
+
+  #smart-code("kubectl get nodes", lang: "bash")
+
+  ✓ Expected: All nodes show `Ready` status
+  ✗ If failed: Cluster bootstrap issue - check Terraform logs
+
+  *Step 7: Check System Resources*
+
+  Monitor resource usage:
+
+  #smart-code("docker stats --no-stream", lang: "bash")
+
+  ✓ Expected: Memory usage < 80%, no excessive CPU usage
+  ✗ If high usage: Increase Docker resource allocation or close other applications
+
+  === Common Recovery Actions
+
+  *Environment Reset*
+
+  If your environment becomes corrupted, restart cleanly:
 
   #smart-code("windsor down    # Stop and remove all containers
 windsor up      # Restart the environment", lang: "bash")
 
-  For complete cleanup including cached images and Terraform state:
+  *Manual Container Cleanup*
+
+  If Windsor commands fail, manually stop all containers:
+
+  #smart-code("docker compose -f .windsor/docker-compose.yaml down", lang: "bash")
+
+  This directly removes all Windsor containers without using Windsor's management layer.
+
+  *Complete Cleanup*
+
+  For persistent issues, perform complete cleanup:
 
   #smart-code("windsor down --clean", lang: "bash")
 
-  If your Kubernetes cluster failed to initialize properly, use:
+  This removes all containers, cached images, and Terraform state.
+
+  *Failed Cluster Recovery*
+
+  If Kubernetes cluster failed to initialize:
 
   #smart-code("windsor down --clean --skip-k8s", lang: "bash")
 
-  The `--skip-k8s` flag prevents attempts to clean up Kubernetes resources when the cluster never started successfully, ensuring a cleaner shutdown of the underlying infrastructure.
+  The `--skip-k8s` flag prevents cleanup attempts when the cluster never started successfully.
 
-  === Windows-Specific Issues
+  *Resource Allocation Issues*
 
-  Docker Desktop on Windows uses WSL2 by default and generally works out of the box with current Windows 10/11 versions. Most installation issues resolve by ensuring Docker Desktop is properly configured:
+  If containers fail to start due to insufficient resources:
 
-  #smart-code("# Check Docker engine status
+  1. Increase Docker Desktop memory allocation to at least 8GB
+  2. Increase CPU allocation to at least 4 cores
+  3. Ensure at least 60GB of free disk space
+  4. Close other resource-intensive applications
+
+  *Windows-Specific Checks*
+
+  For Docker connectivity issues on Windows:
+
+  #smart-code("# Verify Docker engine status
 docker version
 
-# Verify WSL2 integration
+# Check WSL2 integration
 wsl --list --verbose", lang: "powershell")
 
-  If you encounter Docker connectivity issues:
+  If Docker fails to start:
+  - Restart Docker Desktop using system tray icon
+  - Verify WSL2 backend is enabled in Docker Desktop settings
+  - Run `wsl --shutdown` and restart Docker Desktop if needed
 
-  #smart-code("# Restart Docker Desktop using system tray icon
-# Right-click Docker whale icon → \"Restart Docker Desktop\"
+  === Getting Detailed Diagnostic Output
 
-# For WSL2 issues (if using custom distributions)
-wsl --shutdown
-wsl --set-default-version 2", lang: "powershell")
+  For more detailed troubleshooting information, use the `--verbose` flag with Windsor commands:
 
-  Modern Docker Desktop installations handle WSL2 setup automatically. Avoid manual WSL2 configuration unless working with custom Linux distributions.
+  #smart-code("windsor up --verbose      # Detailed startup logs
+windsor down --verbose    # Detailed shutdown logs", lang: "bash")
 
-  === Performance Optimization
+  The verbose output provides full log details that can help identify specific failure points.
 
-  For optimal performance on all platforms:
+  === When to Seek Help
 
-  - Close unnecessary applications during development
-  - Monitor resource usage with `docker stats` and `kubectl top nodes`
-  - Use SSD storage for Docker data directory
-  - Enable Docker layer caching in CI/CD pipelines
-  - Consider upgrading to faster hardware if working with large applications
+  If diagnostic steps don't resolve the issue:
 
-  === Getting Help
-
-  If you encounter issues not covered here:
-
-  - Check Docker Desktop status and restart if necessary
-  - Verify system requirements are met
-  - Review container logs with `docker logs <container-name>`
-  - Consult the Windsor documentation for platform-specific guidance
-  - Post an issue on the Windsor GitHub repository
+  1. Check Docker Desktop status and restart if necessary
+  2. Review container logs: `docker logs <container-name>`
+  3. Run Windsor commands with `--verbose` flag for detailed output
+  4. Verify system requirements are met
+  5. Consult Windsor documentation for platform-specific guidance
+  6. Post an issue on the Windsor GitHub repository with diagnostic output
 ]
 
 #troubleshooting-end()
