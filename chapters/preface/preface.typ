@@ -1,4 +1,5 @@
 #import "/src/utils/page-break-helpers.typ": *
+#set heading(numbering: none)
 
 = Preface
 

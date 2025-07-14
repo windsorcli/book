@@ -142,7 +142,6 @@
 
   // Heading styling with smart page break prevention
   show heading.where(level: 1): it => {
-    pagebreak()
     v(3em)
 
     align(center)[

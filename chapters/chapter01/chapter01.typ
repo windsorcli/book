@@ -1,3 +1,5 @@
+#import "@preview/in-dexter:0.7.2": *
+
 = Introduction to Windsor CLI
 
 Modern cloud-native development presents a paradox: while the tools available to us are more powerful than ever, the complexity of coordinating them has grown exponentially. Developers juggle multiple cloud providers, each with their own CLIs and authentication mechanisms. Infrastructure teams manage IaC configurations across dozens of environments. Operations teams reconcile differences between local development setups and production deployments. Platform engineers struggle to provide consistent tooling across diverse teams and projects.
@@ -9,7 +11,7 @@ Windsor CLI addresses this complexity head-on by providing a unified interface t
 The modern cloud-native ecosystem, while powerful, has introduced significant operational complexity that affects every aspect of the development lifecycle. This complexity manifests in three primary areas that Windsor specifically addresses.
 
 === Context Switching Overhead
-
+#index("context switching")
 Consider a typical development workflow: a developer needs to work on a feature that spans multiple environments. They might start with local development using Docker Desktop, deploy to a staging cluster in a development AWS account, and finally promote their changes through a CI/CD pipeline that deploys to a production cluster in a separate production AWS account. Each environment requires:
 
 - Different authentication mechanisms
@@ -23,7 +25,7 @@ The mental overhead of managing these differences is substantial. Developers spe
 This context switching problem compounds as teams grow and adopt more sophisticated deployment patterns. A single feature might touch local development, feature branch environments, staging, pre-production, and multiple production environments across different regions or cloud providers. Each context switch requires developers to mentally map the appropriate configurations, credentials, and deployment procedures.
 
 === Infrastructure Fragmentation
-
+#index("infrastructure fragmentation")
 Infrastructure-as-code tools have solved many deployment challenges, but they've also created new ones. Teams often end up with:
 
 - Duplicated IaC modules across environments
@@ -37,7 +39,7 @@ This fragmentation occurs because traditional infrastructure-as-code approaches 
 The lack of standardization also affects team productivity. New team members must learn environment-specific configurations and deployment procedures. Knowledge becomes siloed among team members who specialize in particular environments, creating bottlenecks and single points of failure.
 
 === Tool Integration Complexity
-
+#index("tool integration")
 The cloud-native landscape includes dozens of specialized tools, each excellent at their specific function but challenging to integrate. Teams spend significant time building glue code and automation to connect:
 
 - Container runtimes and orchestration platforms
@@ -53,13 +55,14 @@ Each tool integration requires understanding multiple APIs, configuration format
 Windsor CLI is a command-line interface that unifies cloud-native development workflows through several core capabilities that work together to eliminate the complexity described above.
 
 === Contextual Environment Management
-
+#index("contexts")
+#index("environment management")
 Windsor introduces the concept of "contexts"—named environments that encapsulate all the configuration, credentials, and infrastructure definitions needed for a specific deployment target. Whether you're working on `local`, `staging`, or `production`, Windsor automatically configures your tools and environment variables to match your current context.
 
 This contextual approach eliminates the cognitive overhead of remembering environment-specific configurations. When you switch to the `production` context, Windsor automatically configures your `kubectl` to point to the production cluster, sets the appropriate AWS credentials, and ensures all tools are configured consistently. The same commands work identically across all environments, reducing errors and improving developer productivity.
 
 === Blueprint-Driven Infrastructure
-
+#index("blueprints")
 At the heart of Windsor is the blueprint system—a declarative approach to defining infrastructure that spans multiple tools and platforms. Blueprints reference collections of IaC modules and Kubernetes configurations, creating a single source of truth for your infrastructure definition.
 
 Unlike traditional infrastructure-as-code approaches that treat each environment independently, Windsor blueprints define the complete infrastructure pattern once and parameterize it for different environments. This approach ensures consistency across environments while allowing for environment-specific customization where necessary.
@@ -67,7 +70,8 @@ Unlike traditional infrastructure-as-code approaches that treat each environment
 Blueprints also encode dependency relationships between infrastructure components, ensuring that resources are created in the correct order and dependencies are properly managed. This eliminates the manual coordination required when managing complex infrastructure deployments.
 
 === Blueprint Packaging and Sharing
-
+#index("blueprint packaging")
+#index("OCI registries")
 Windsor's blueprint system extends beyond local definitions to include packaging and distribution capabilities. Teams can create reusable blueprint packages that encapsulate complete infrastructure patterns, making them shareable across projects and organizations.
 
 Blueprint packages are distributed through OCI-compatible registries, leveraging the same infrastructure used for container images. This approach provides:
@@ -82,7 +86,7 @@ Teams can publish their tested infrastructure patterns using `windsor push`, mak
 This packaging system creates a marketplace effect where teams can share infrastructure patterns, reducing duplication and improving consistency across organizations. Common patterns like "web application with monitoring" or "microservices with service mesh" can be packaged once and reused across multiple projects.
 
 === Intelligent Tool Orchestration
-
+#index("tool orchestration")
 Windsor doesn't replace your existing tools; it orchestrates them. When you run `windsor up` locally, Windsor:
 
 - Configures your Docker daemon and Kubernetes context
@@ -94,13 +98,13 @@ Windsor doesn't replace your existing tools; it orchestrates them. When you run 
 This orchestration layer abstracts away the complexity of tool integration while preserving the power and flexibility of the underlying tools. Teams can continue using their preferred tools and workflows while benefiting from Windsor's coordination and consistency.
 
 === Local Cloud Simulation
-
+#index("local development")
 One of Windsor's most powerful features is its ability to create complete cloud environments on your local machine. Using Docker and Kubernetes, Windsor can simulate complex multi-service architectures, allowing development and testing without cloud dependencies.
 
 Local cloud simulation addresses the "works on my machine" problem by ensuring that local development environments closely mirror production deployments. This capability enables full-stack development without cloud costs and provides consistent environments for all team members regardless of their local setup.
 
 === Low-Dependency Bootstrapping
-
+#index("bootstrapping")
 Windsor is designed for immediate deployment capability with minimal setup requirements. The same Windsor workflow that runs locally can deploy directly to bare metal servers, cloud service providers, or execute within any CI/CD pipeline without modification.
 
 This low-dependency approach means teams can start deploying infrastructure immediately after installing Windsor, without complex bootstrapping processes or extensive prerequisite installations. Whether you're deploying to a local development environment, a spare laptop, AWS, Azure, or running in GitHub Actions, the same `windsor up` command works consistently across all targets.
@@ -114,7 +118,7 @@ The uniform deployment model eliminates the traditional friction between develop
 Understanding Windsor requires familiarity with several key concepts that work together to provide its unified experience. These concepts form the foundation of Windsor's approach to cloud-native development.
 
 === Contexts: Environment Abstraction
-
+#index("contexts")
 A context represents a complete environment configuration. When you switch contexts, Windsor reconfigures your entire toolchain to match that environment's requirements. This includes:
 
 - Cloud provider credentials and configurations
@@ -135,7 +139,7 @@ contexts/
 Each context directory contains a blueprint definition and any environment-specific configuration files. This structure provides a clear separation between environments while maintaining consistency in how they're defined and managed.
 
 === Blueprints: Infrastructure Definition
-
+#index("blueprints")
 Blueprints define the complete infrastructure and application stack for a context using a simple declarative format. Here's what a production blueprint looks like:
 
 ```yaml
@@ -164,7 +168,8 @@ kustomize:
 This blueprint defines a production environment that includes networking infrastructure, a Kubernetes cluster, and application deployments. The same blueprint structure can be used across environments with different parameters and configurations.
 
 === Environment Injection and the Windsor Hook
-
+#index("environment injection")
+#index("shell hook")
 Windsor dynamically configures your shell environment as you navigate your project. This "environment injection" ensures that tools like `kubectl`, IaC tools, and cloud CLIs are always configured for your current context. The system is aware of:
 
 - Your current working directory
@@ -208,6 +213,7 @@ These benefits create a compounding effect: as teams adopt Windsor's patterns, t
 
 == System Requirements and Prerequisites
 
+#index("system requirements")
 Before exploring Windsor's capabilities in the hands-on lab, it's important to understand the system requirements and prerequisites for optimal performance.
 
 === System Requirements
@@ -223,6 +229,7 @@ These requirements ensure that Windsor can effectively simulate cloud environmen
 
 === Prerequisites
 
+#index("prerequisites")
 Windsor requires several tools to function effectively:
 
 *Required*:
@@ -244,6 +251,8 @@ Windsor can be installed through package managers like Homebrew or Chocolatey, o
 
 == Installation and Shell Integration
 
+#index("installation")
+#index("shell integration")
 Install Windsor using your preferred method (Homebrew, Chocolatey, or direct download). See the official documentation for the latest instructions.
 
 After installing Windsor, set up the shell hook to ensure your environment is always configured for the correct Windsor context:
