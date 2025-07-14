@@ -1,7 +1,9 @@
+#import "@preview/in-dexter:0.7.2": *
 #import "/src/utils/page-break-helpers.typ": *
 #import "/src/template.typ": subheading, troubleshooting-start, troubleshooting-end
 
 = Local Development Workflows
+#index("local development")
 
 Local development for cloud-native applications presents unique challenges and opportunities. This chapter examines the philosophy behind running complete cloud environments locally, the infrastructure components required, and how Windsor implements this approach.
 
@@ -26,6 +28,7 @@ Running cloud environments locally provides several fundamental advantages:
 *Offline Capability*: Once configured, local environments operate without internet connectivity, enabling development during travel or network outages.
 
 === Hardware Requirements and Recommendations
+#index("hardware requirements")
 
 Local cloud development requires substantial computational resources, as you're essentially running a data center on your laptop. Modern development machines should meet these minimum specifications:
 
@@ -46,7 +49,7 @@ Local cloud development requires substantial computational resources, as you're 
 - *Windows with WSL2*: Good performance, requires WSL2 for container compatibility and Linux-based development tools
 - *Linux*: Native container performance, minimal overhead
 
-The investment in development hardware pays dividends in productivity. A well-equipped development machine eliminates the friction of slow builds, resource constraints, and network dependencies that plague underpowered setups.mp
+The investment in development hardware pays dividends in productivity. A well-equipped development machine eliminates the friction of slow builds, resource constraints, and network dependencies that plague underpowered setups.
 
 == Local Infrastructure Components
 
@@ -74,6 +77,7 @@ Default virtualization selection follows this logic:
 - Linux: Native Docker (default), Colima (with `--colima` flag)
 
 === Docker Desktop Integration
+#index("Docker Desktop")
 
 Docker Desktop provides lightweight containerization suitable for most development workflows. This backend leverages Docker's built-in networking and volume management, making it ideal for applications that primarily use containers without requiring complex networking scenarios.
 
@@ -85,6 +89,7 @@ The Docker Desktop backend automatically configures Docker contexts and ensures 
   type: "warning",
   [
     *Configuring Docker Desktop Storage*
+    #index("Docker Desktop configuration")
 
     Windsor's local environment requires substantial disk space for container images, Kubernetes cluster data, and application storage. You must increase Docker Desktop's default storage allocation:
 
@@ -104,6 +109,7 @@ The Docker Desktop backend automatically configures Docker contexts and ensures 
 )
 
 === Colima Full Virtualization
+#index("Colima")
 
 Colima (Containers on Linux on macOS) is an open-source container runtime that provides full virtualization capabilities through Lima and native hypervisor frameworks. Unlike Docker Desktop's lightweight containerization approach, Colima creates a complete Linux VM that hosts all development infrastructure, enabling features not available in lightweight containerization.
 
@@ -139,6 +145,7 @@ Windsor implements local cloud development through Docker Compose orchestration.
 The local Kubernetes cluster runs as Talos-based containers, providing production-like container orchestration. Applications deployed to this cluster operate using standard Kubernetes APIs, though scaling is constrained by local machine resources.
 
 === DNS and Service Discovery
+#index("DNS configuration")
 
 Windsor runs a CoreDNS container (`dns.test`) that provides local DNS resolution for the `.test` domain. This enables both service discovery and application access using domain names rather than IP addresses. Internal services can connect to each other using names like `registry.test` or `controlplane-1.test`, while developers can access their applications through URLs like `https://my-app.test` in their web browsers.
 
@@ -605,8 +612,6 @@ This shows CPU and memory usage across the cluster, helping you understand the r
 
 The complete infrastructure stack provides a production-like environment for developing, testing, and validating cloud-native applications locally.
 
-
-
 === Environment Activation
 
 Once your project is initialized, Windsor's environment management automatically activates when you're in the project directory. The shell hook system ensures that your environment is always correctly configured for your current context without manual intervention.
@@ -639,6 +644,7 @@ This chapter guided you through setting up and validating a complete local cloud
   breakable: true,
 )[
 
+#index("troubleshooting")
 Windsor's local environment involves complex interactions between Docker, networking, and Kubernetes. Use this diagnostic checklist to systematically identify and resolve common issues.
 
   === Diagnostic Checklist
@@ -646,6 +652,7 @@ Windsor's local environment involves complex interactions between Docker, networ
   When encountering issues, work through these checks in order:
 
   *Step 1: Verify Shell Hook Installation*
+  #index("shell hook troubleshooting")
 
   Check if Windsor environment variables are active:
 
@@ -659,6 +666,7 @@ Windsor's local environment involves complex interactions between Docker, networ
   ✗ If missing: Shell hook not installed - refer to Chapter 1 for shell hook installation instructions
 
   *Step 2: Verify Docker Status*
+  #index("Docker troubleshooting")
 
   Check Docker daemon is running:
 
@@ -668,6 +676,7 @@ Windsor's local environment involves complex interactions between Docker, networ
   ✗ If failed: Start Docker Desktop or Docker daemon
 
   *Step 3: Check Windsor Container Status*
+  #index("container troubleshooting")
 
   Verify all Windsor containers are running:
 
@@ -677,6 +686,7 @@ Windsor's local environment involves complex interactions between Docker, networ
   ✗ If missing containers: Run `windsor up` to start environment
 
   *Step 4: Test DNS Resolution*
+  #index("DNS troubleshooting")
 
   Verify `.test` domain resolution:
 
@@ -694,6 +704,7 @@ Windsor's local environment involves complex interactions between Docker, networ
   #smart-code("nslookup registry.test", lang: "powershell")
 
   *Step 5: Verify Kubernetes Configuration*
+  #index("Kubernetes troubleshooting")
 
   Check that cluster configuration files exist:
 
@@ -713,6 +724,7 @@ ls -la contexts/local/.talos/config", lang: "bash")
   ✗ If failed: Cluster bootstrap issue - check Terraform logs
 
   *Step 7: Check System Resources*
+  #index("resource troubleshooting")
 
   Monitor resource usage:
 
@@ -764,6 +776,7 @@ windsor up      # Restart the environment", lang: "bash")
   4. Close other resource-intensive applications
 
   *Windows-Specific Checks*
+  #index("Windows troubleshooting")
 
   For Docker connectivity issues on Windows:
 

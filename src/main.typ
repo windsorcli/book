@@ -1,3 +1,4 @@
+#import "@preview/in-dexter:0.7.2": *
 #import "/src/template.typ": *
 #import "/src/utils/page-break-helpers.typ": *
 
@@ -76,14 +77,21 @@
   indent: auto
 )
 
-#set heading(numbering: none)
 #include "/chapters/preface/preface.typ"
 
-// Reset page numbering to Arabic numerals for chapters
+#pagebreak()
 #set page(numbering: "1")
-#counter(page).update(1)
-
-#set heading(numbering: "1.")
 #include "/chapters/chapter01/chapter01.typ"
+
+#pagebreak()
 #include "/chapters/chapter02/chapter02.typ"
+
 // #include "/chapters/chapter03/chapter03.typ"
+
+// Index page
+#pagebreak()
+#set heading(numbering: none)
+= Index
+#columns(2, gutter: 2.5em)[
+  #make-index(title: none, outlined: true, use-page-counter: true)
+]
