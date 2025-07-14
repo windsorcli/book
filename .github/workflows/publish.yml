@@ -47,7 +47,7 @@ jobs:
           sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
       - name: Install Typst
-        uses: typst-community/setup-typst@13c527d2e8ac7863a24510c4043ad28fd47a5606 # v4.1.0
+        uses: typst-community/setup-typst@0215a551fa8714b290af7956b9973d010f1a5187 # v4.2
         with:
           typst-version: 'latest'
           cache-dependency-path: '' # Enable caching
