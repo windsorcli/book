@@ -54,6 +54,24 @@ The book is structured to support both linear reading and reference use. Early c
 
 Each chapter includes practical examples you can run on your own system. The accompanying code samples provide working configurations that demonstrate real-world usage patterns.
 
+#block(
+  fill: rgb("#f8f9fa"),
+  stroke: rgb("#dee2e6"),
+  width: 100%,
+  inset: 1em,
+  radius: 4pt,
+  [
+    *Note on Terraform Terminology*
+
+    Throughout this book, I use "Terraform" to refer generically to both HashiCorp Terraform and OpenTofu (the open-source fork). Windsor CLI supports both tools interchangeably. The choice depends on your licensing requirements and preferences.
+
+    - *HashiCorp Terraform*: Commercial product under the Business Source License (BSL)
+    - *OpenTofu*: Open-source fork under the Mozilla Public License (MPL)
+
+    All examples and configurations work identically with either tool. When I reference "Terraform" in the text, assume compatibility with both unless explicitly noted otherwise.
+  ]
+)
+
 == Publication and Distribution
 
 This book is published digitally and distributed through the Windsor CLI project repository at #link("https://github.com/windsorcli/book/releases"). Multiple formats are available to accommodate different reading preferences and devices. The book follows an open development model—edits, corrections, and contributions from the community are welcome and encouraged.
